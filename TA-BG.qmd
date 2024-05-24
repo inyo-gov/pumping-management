@@ -1,0 +1,883 @@
+---
+title: "Soil-Plant Water Balance and Groundwater - Taboose-Aberdeen, Thibaut-Sawmill, Independence-Oak, Symmes-Shepherd, Bairs-Georges"
+description: |
+  On-off pumping management according to Green Book Section III values for Vegetation Water Requirements 1989-2023.
+format: 
+  html: 
+    toc: true
+    toc-depth: 3
+    anchor-sections: true
+    smooth-scroll: true
+    code-fold: true
+    code-summary: "code"
+    code-line-numbers: true
+    code-overflow: wrap
+    code-link: true
+    html-math-method: katex
+tbl-cap-location: top   
+number-sections: true    
+affiliation: "Inyo County Water Department"
+affiliation-title: "Senior Scientist"
+date-modified: "2024-05-24"
+citation:
+  type: report
+  container-title: "Green Book Section III On/Off Pumping Management"
+  publisher: "Inyo County Water Department"
+  issued: "2024-05-24"
+  url: https://github.com/inyo-gove/pumping-management
+google-scholar: true
+---
+
+```{r setup, include=FALSE}
+library(lubridate)
+library(dygraphs)
+library(zoo)
+library(readxl)
+library(tidyverse)
+library(here)
+
+# source functions----
+source(here('code','functions.R'))
+
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+```{r read-data}
+data_path <- here('data','Totals_Means_2023.csv')
+tm2 <- read_csv(data_path) %>% filter(read != -777)
+
+# set path to input data (excel spreadsheet)
+# path <- 'awc_vwr_dtw_MASTER_8_2021.xlsx'
+path <- here('data','awc_vwr_dtw_MASTER_12_2023.xlsx')
+# read excel file
+awc<-read_excel(path, sheet = "awc_vwr") 
+# format the date column from decimal to date
+awc1 <- awc %>% mutate(date1 = format(date_decimal(date), "%Y-%m-%d"))
+# create new date column in date format
+awc1$date <- as.Date(awc1$date1)
+# remove rows with NAs in date column and select columns
+awc1 <- awc1 %>% filter(!is.na(awc),!is.na(vwr),!is.na(date)) %>% select(site,date,awc,vwr)
+
+```
+
+```{r}
+# read on/off table
+awc.req.turnon<-read_excel(path, sheet = "on.off.table") 
+
+```
+
+```{r}
+
+# READ dtw and convert to date for zoo object
+dtw.pm<-read_excel(path, sheet = "dtw") 
+dtw1 <- dtw.pm %>% mutate(date1 = format(date_decimal(date), "%Y-%m-%d")) %>% filter(!is.na(dtw))
+dtw1$date <- as.Date(dtw1$date1)
+dtw1 <- dtw1 %>% filter(!is.na(dtw),!is.na(site),!is.na(date)) %>% select(site, date, dtw)
+
+```
+
+```{r}
+# READ on/off history and convert to date for zoo object
+on.off<-read_excel(path, sheet = "on.off") 
+on.off1 <-on.off %>% mutate(date1 = format(date_decimal(date), "%Y-%m-%d")) 
+on.off1$date <- as.Date(on.off1$date1)
+
+on.off1 <- on.off1 %>% select(site, date, on.off, on.off.1)
+
+```
+
+
+# On/Off Well Management
+
+The Water Agreement and Green Book established protocols for determining the operational status of LADWP pumping wells, based on soil moisture and vegetation measurements. To fulfill monitoring requirements under the Agreement, the Water Department regularly assesses soil moisture content and vegetation leaf area index (in collaboration with LADWP) at 22 permanent sites within wellfields and seven sites in control areas. Soil moisture monitoring occurs monthly, while vegetation monitoring takes place annually in June. Each monitoring site is associated with one or more LADWP pumping wells.
+
+On July 1st and October 1st, if soil moisture levels are inadequate to support vegetation needs at a site, the linked pumping wells go into off status. They remain offline until soil moisture levels surpass the threshold required by the vegetation at the time the linked wells went into off status. This operational approach is known as the On/Off management strategy.
+
+Since its inception in 1990, LADWP has frequently maintained numerous wells in the Off status, adhering to subsequent agreements with the County.
+
+# Soil-Plant Water Balance and Groundwater
+
+Data for each of the permanent monitoring sites (1990-present) is presented in four plots. The first plot includes pumped water from linked production wells. The second includes available water content (AWC) and vegetation water requirements (VWR) over time. The third plot includes the depth to water table (DTW) from the monitoring well on the site. The last plot represents time periods when the site was either in on or off status over the management period.
+
+The right margin contains a photo of the site, production wells linked to the site, current on/off status, AWC required for well turn-on, and the identity of the associated monitoring well.
+
+**Instructions**
+
+-   `Zoom out`: Double click on a plot to zoom out to the full time series extent.
+-   `Data point highlighting`: Move cursor over the plot to display data values in the legend.
+-   `Pan`: Use slider range selector to display custom time periods.
+-   `Zoom in`: Drag horizontally to select time period or drag vertically to select a custom y-axis range.
+-   `Grouped Selection`: Selection in any plot will update all plots with this selection.
+
+
+```{r}
+linked_wells <- data.frame(
+  Site = rep(c("BP1", "BP2", "BP3", "BP4", "LW1", "LW2", "LW3", 
+  "TA3", "TA4","TA5","TA6","TS1","TS2","TS3","TS4","IO1","IO2","SS1","SS2","SS3","SS4","BG2"), 
+             times = c(4, 4, 4, 1, 4, 4, 5, 
+			 4, 2, 1, 2, 1, 1 , 3, 2, 3, 1, 3, 3, 2, 2, 4)),
+  Linked_Well = c("W210", "W378", "W379", "W389",   		#BP1 4
+                   "W220","W229","W374","W375",        # Linked wells for BP2
+                  "W222", "W223", "W231", "W232", 			#BP3 4
+                  "W331",                          			#BP4 1
+                  "W247", "W248", "W249", "W398",  			#LW1 4
+                  "W236", "W239", "W243", "W244",  			#LW2 4
+                  "W240", "W241", "W399", "W376", "W377", 	#LW3 5
+				          "W106", "W110", "W111", "W114", 			#TA3 4
+				          "W342", "W347", 							#TA4 2
+				          "W349", 									#TA5 1
+				          "W109", "W370", 							#TA6 2
+				          "W159", 									#TS1 1
+				          "W155", 									#TS2 1
+				          "W103", "W104", "W382", 					#TS3 3
+				          "W380", "W381", 							#TS4 2
+				          "W061", "W391", "W400", 					#IO1 3
+				          "W063", 									#IO2 1
+				          "W069", "W392", "W393", 					#SS1 3
+				          "W074", "W394", "W395", 					#SS2 3
+				          "W092", "W396", 							#SS3 2
+				          "W075", "W345", 							#SS4 2
+				          "W076", "W403", "W343", "W348" 			#BG2 4
+))
+
+
+
+
+# tm2 %>% semi_join(linked_wells, by = c("staid" = "Linked_Well")) %>% distinct(staid)
+
+
+```
+### TABOOSE/ABERDEEN MONITORING SITE #3
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "TA3", linked_wells)
+```
+
+```{r, fig.height=3}
+
+plot_awc_dygraph(awc1,"TA3")
+
+```
+
+<aside>
+
+```{r ,echo=FALSE, cache=TRUE,dpi=30, fig.cap="Taboose/Aberdeen Monitoring Site #3"}
+knitr::include_graphics(here('data','point_frame_photos','TA3_0to100m.JPG'))
+```
+
+Linked pumping wells - 106, 110, 111, 114
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "TA3") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'TA3') %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"TA3")
+
+```
+
+<aside>Depth to Water: 849T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"TA3")
+
+```
+
+### TABOOSE/ABERDEEN MONITORING SITE #4
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "TA4", linked_wells)
+```
+
+```{r, fig.height=3}
+
+# AWC and VWR
+plot_awc_dygraph(awc1,"TA4")
+
+
+# dygraph(awc.z, group = 'a') %>%
+# dyAxis("y", label = "(cm)") %>%
+#   dyLegend(show = "always", hideOnMouseOut = FALSE)
+```
+
+<aside>
+
+```{r ,fig.cap="Taboose/Aberdeen Monitoring Site #4",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','TA4_0_2018.JPG'))
+```
+
+Linked pumping wells - 342, 347
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "TA4") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == "TA4") %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"TA4")
+
+```
+
+<aside>Depth to Water: 586T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"TA4")
+
+```
+
+### TABOOSE/ABERDEEN MONITORING SITE #5
+
+```{r, fig.height=3}
+plot_linked_wells_single(tm2, "TA5", linked_wells)
+
+```
+
+
+```{r, fig.height=3}
+
+# AWC and VWR
+plot_awc_dygraph(awc1,"TA5")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Taboose/Aberdeen Monitoring Site #5",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','TA5_0_2018.JPG'))
+```
+
+Linked pumping wells - 349
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "TA5") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == "TA5") %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"TA5")
+
+```
+
+<aside>Depth to Water: 801T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"TA5")
+
+```
+
+### TABOOSE/ABERDEEN MONITORING SITE #6
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "TA6", linked_wells)
+```
+
+```{r}
+# filter to site level
+site_id <- "TA6"
+
+```
+
+```{r, fig.height=3}
+
+# AWC and VWR
+plot_awc_dygraph(awc1,"TA6")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Taboose/Aberdeen Monitoring Site #6",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','TA6_0_2018.JPG'))
+```
+
+Linked pumping wells - 109, 370
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "TA6") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == "TA6") %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"TA6")
+
+```
+
+<aside>Depth to Water: 803T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"TA6")
+```
+
+### THIBAUT/SAWMILL MONITORING SITE #1
+
+```{r, fig.height=3}
+# plot_linked_wells(tm2, "TS1", linked_wells)
+plot_linked_wells_single(tm2, "TS1", linked_wells)
+```
+
+
+```{r, fig.height=3}
+
+# AWC and VWR
+plot_awc_dygraph(awc1,"TS1")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Thibaut/Sawmill Monitoring Site #1",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','TS1_0to100m.JPG'))
+```
+
+Linked pumping wells - 159
+
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "TS1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == "TS1") %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+
+plot_dtw_dygraph(dtw1,"TS1")
+ 
+```
+
+<aside>Depth to Water: 807T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"TS1")
+
+```
+
+### THIBAUT/SAWMILL MONITORING SITE #2
+
+```{r, fig.height=3}
+plot_linked_wells_single(tm2, "TS2", linked_wells)
+```
+
+
+
+```{r, fig.height=3}
+
+# AWC and VWR
+plot_awc_dygraph(awc1,"TS2")
+
+# 
+# dygraph(awc.z, group = 'a') %>%
+# dyAxis("y", label = "(cm)") %>%
+#   dyLegend(show = "always", hideOnMouseOut = FALSE)
+```
+
+<aside>
+
+```{r ,fig.cap="Thibaut/Sawmill Monitoring Site #2",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','TS2_0_2018.JPG'))
+```
+
+Linked pumping wells - 155
+
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "TS2") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == "TS2") %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"TS2")
+
+```
+
+<aside>Depth to Water: 806T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+
+plot_on_off(on.off1,"TS2")
+
+```
+
+### THIBAUT/SAWMILL MONITORING SITE #3
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "TS3", linked_wells)
+```
+
+```{r, fig.height=3}
+# AWC and VWR
+plot_awc_dygraph(awc1,"TS3")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Thibaut/Sawmill Monitoring Site #3",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','TS3_0to100m.JPG'))
+```
+
+Linked pumping wells - 103, 104, 382
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "TS3") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == "TS3") %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"TS3")
+
+```
+
+<aside>Depth to Water: 851T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"TS3")
+
+```
+
+### THIBAUT/SAWMILL MONITORING SITE #4
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "TS4", linked_wells)
+```
+
+
+```{r, fig.height=3}
+
+# AWC and VWR
+plot_awc_dygraph(awc1,"TS4")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Thibaut/Sawmill Monitoring Site #4",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','TS4_0to100m.JPG'))
+```
+
+Linked pumping wells - 380, 381
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "TS4") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == "TS4") %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"TS4")
+ 
+```
+
+<aside>Depth to Water: 804T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"TS4")
+```
+
+### THIBAUT/SAWMILL CONTROL SITE
+
+```{r, fig.height=3}
+
+# AWC and VWR
+plot_awc_dygraph(awc1,"TSC")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Thibaut/Sawmill Control Site",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','TSC_0_2018.JPG'))
+```
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"TSC")
+ 
+```
+
+<aside>Depth to Water: 805T</aside>
+
+### INDEPENDENCE/OAK MONITORING SITE #1
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "IO1", linked_wells)
+```
+
+```{r, fig.height=3}
+# AWC and VWR
+plot_awc_dygraph(awc1,"IO1")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Independence/Oak Monitoring Site",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','IO1_0to100m.JPG'))
+```
+
+Linked pumping wells - 61, 391, 400
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "IO1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'IO1') %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"IO1")
+
+```
+
+<aside>Depth to Water: 809T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"IO1")
+
+```
+
+### INDEPENDENCE/OAK MONITORING SITE #2
+
+```{r, fig.height=3}
+plot_linked_wells_single(tm2, "IO2", linked_wells)
+```
+
+```{r, fig.height=3}
+# AWC and VWR
+plot_awc_dygraph(awc1,"IO2")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Independence/Oak Monitoring Site",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','IO2_0_2018.JPG'))
+```
+
+Linked pumping wells - 63
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "IO2") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'IO2') %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"IO2")
+
+```
+
+<aside>Depth to Water: 854T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"IO2")
+
+```
+
+### INDEPENDENCE/OAK CONTROL SITE #1
+
+```{r, fig.height=3}
+
+# AWC and VWR
+plot_awc_dygraph(awc1,"IC1")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Independence/Oak Control Site #1",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','IC1_0to100m.JPG'))
+```
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"IC1")
+
+```
+
+<aside>Depth to Water: USGS 8-D</aside>
+
+### INDEPENDENCE/OAK CONTROL SITE #2
+
+```{r, fig.height=3}
+
+# AWC and VWR
+plot_awc_dygraph(awc1,"IC2")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Independence/Oak Control Site #2",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','IC2_0_2018.JPG'))
+```
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"IC2")
+
+```
+
+<aside>Depth to Water: 810T</aside>
+
+### SYMMES/SHEPHERD MONITORING SITE #1
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "SS1", linked_wells)
+```
+
+```{r, fig.height=3}
+
+# AWC and VWR
+plot_awc_dygraph(awc1,"SS1")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Symmes/Shepherd Monitoring Site #1",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','SS1_0to100m.JPG'))
+```
+
+Linked pumping wells - 69, 392, 393
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "SS1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')``
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'SS1') %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"SS1")
+
+```
+
+<aside>Depth to Water: V009G</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"SS1")
+
+```
+
+### SYMMES/SHEPHERD MONITORING SITE #2
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "SS2", linked_wells)
+```
+
+
+```{r, fig.height=3}
+# AWC and VWR
+plot_awc_dygraph(awc1,"SS2")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Symmes/Shepherd Monitoring Site #2",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','SS2_0_2018.JPG'))
+```
+
+Linked pumping wells - 74, 394, 395
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "SS3") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'SS2') %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"SS2")
+
+```
+
+<aside>Depth to Water: 646T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"SS2")
+
+```
+
+### SYMMES/SHEPHERD MONITORING SITE #3
+
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "SS3", linked_wells)
+```
+
+```{r, fig.height=3}
+
+# AWC and VWR
+plot_awc_dygraph(awc1,"SS3")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Symmes/Shepherd Monitoring Site #3",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','SS3_0to100m.JPG'))
+```
+
+Linked pumping wells - 92, 396
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "SS3") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'SS3') %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"SS3")
+
+```
+
+<aside>Depth to Water: 561T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"SS3")
+
+```
+
+### SYMMES/SHEPHERD MONITORING SITE #4
+
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "SS4", linked_wells)
+```
+
+```{r, fig.height=3}
+# AWC and VWR
+plot_awc_dygraph(awc1,"SS4")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Symmes/Shepherd Monitoring Site #4",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','SS4_0_2018.JPG'))
+```
+
+Linked pumping wells - 75, 345
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "SS4") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'SS4') %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"SS4")
+
+```
+
+<aside>Depth to Water: 885T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"SS4")
+
+```
+
+### BAIRS GEORGES MONITORING SITE #2
+
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "BG2", linked_wells)
+```
+
+```{r, fig.height=3}
+
+# AWC and VWR
+plot_awc_dygraph(awc1,"BG2")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Bairs/Georges Monitoring Site #2",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','BG2_0to100m.JPG'))
+```
+
+Linked pumping wells - 76, 403, 343, 348
+
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "BG2") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
+Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'BG2') %>% select(AWC.req.turnon)`
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"BG2")
+
+```
+
+<aside>Depth to Water: 812T</aside>
+
+```{r, fig.height=1}
+#on/off bar
+plot_on_off(on.off1,"BG2")
+
+```
+
+### BAIRS/GEORGES CONTROL SITE
+
+```{r, fig.height=3}
+
+# AWC and VWR
+plot_awc_dygraph(awc1,"BGC")
+
+```
+
+<aside>
+
+```{r ,fig.cap="Bairs/Georges Control Site",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('data','point_frame_photos','BGC_0to100m.JPG'))
+```
+
+</aside>
+
+```{r, fig.height=3}
+# DTW
+plot_dtw_dygraph(dtw1,"BGC")
+
+```
+
+<aside>Depth to Water: 856T</aside>
