@@ -15,7 +15,7 @@ format:
     code-link: true
     html-math-method: katex
 tbl-cap-location: top   
-number-sections: true    
+# number-sections: true    
 affiliation: "Inyo County Water Department"
 affiliation-title: "Senior Scientist"
 date-modified: "2024-05-24"
@@ -24,7 +24,7 @@ citation:
   container-title: "Green Book Section III On/Off Pumping Management"
   publisher: "Inyo County Water Department"
   issued: "2024-05-24"
-  url: https://github.com/inyo-gove/pumping-management
+  url: https://github.com/inyo-gov/pumping-management
 google-scholar: true
 ---
 

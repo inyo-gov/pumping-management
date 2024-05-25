@@ -1,0 +1,5 @@
+---
+title: "About"
+---
+
+These interactive plots were created in R, quarto and the dygraphs R package. They have traditionally been updated once a year - however, wells may go into *off status* July 1 and October 1, and into *on status* in any given month. A continuous integration and deployment is planned for updates every month.

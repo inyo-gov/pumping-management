@@ -1,0 +1,23 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Soil Plant Water Balance and Groundwater"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Laws to Big Pine
+      - href: TA-BG.qmd
+        text: Taboose-Aberdeen to Bairs-Georges
+      - about.qmd
+      - icon: github
+        href: https://github.com/inyo-gov/pumping-management
+
+format:
+  html:
+    theme: sandstone
+    css: styles.css
+    toc: true
+
+editor: visual

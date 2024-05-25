@@ -1,0 +1,20 @@
+# Ignore R history and session data
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Ignore Quarto configuration and build artifacts
+/.quarto/
+
+# Ignore specific directories
+index_cache
+TA-BG_cache
+README_files
+
+# ignore data/point_frame_photos for now - can use Git LFS
+# data/point_frame_photos/*
+
+
+# Ignore unwanted ._file.jpg files
+._*
