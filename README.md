@@ -1,10 +1,4 @@
-# Pumping Management
-
-Welcome to the Pumping Management repository.
-
-## Website
-
-For more information and to view the website, please visit: [Pumping Management Website](https://inyo-gov.github.io/pumping-management/)
+quarto website deployed from docs/ directory on pages: [Pumping Management Website](https://inyo-gov.github.io/pumping-management/)
 
 ## Introduction
 
