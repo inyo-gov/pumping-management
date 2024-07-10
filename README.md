@@ -1,4 +1,4 @@
-quarto website deployed from docs/ directory on pages: [Pumping Management Website](https://inyo-gov.github.io/pumping-management/)
+Quarto website is deployed from docs/ directory on github pages: [Pumping Management Website](https://inyo-gov.github.io/pumping-management/)
 
 ## Introduction
 
