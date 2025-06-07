@@ -1,7 +1,7 @@
 ---
 title: "Soil-Plant Water Balance and Groundwater - Taboose-Aberdeen, Thibaut-Sawmill, Independence-Oak, Symmes-Shepherd, Bairs-Georges"
 description: |
-  On-off pumping management according to Green Book Section III values for Vegetation Water Requirements 1989-2023.
+  On-off pumping management according to Green Book Section III values for Vegetation Water Requirements 1989-2025.
 format: 
   html: 
     toc: true
@@ -18,12 +18,12 @@ tbl-cap-location: top
 # number-sections: true    
 affiliation: "Inyo County Water Department"
 affiliation-title: "Senior Scientist"
-date-modified: "2024-05-24"
+date-modified: "2025-06-07"
 citation:
   type: report
   container-title: "Green Book Section III On/Off Pumping Management"
   publisher: "Inyo County Water Department"
-  issued: "2024-05-24"
+  issued: "2025-06-07"
   url: https://github.com/inyo-gov/pumping-management
 google-scholar: true
 ---
@@ -43,12 +43,12 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
 ```{r read-data}
-data_path <- here('data','Totals_Means_2023.csv')
+data_path <- here('data','Totals_Means_2024.csv')
 tm2 <- read_csv(data_path) %>% filter(read != -777)
 
 # set path to input data (excel spreadsheet)
 # path <- 'awc_vwr_dtw_MASTER_8_2021.xlsx'
-path <- here('data','awc_vwr_dtw_MASTER_12_2023.xlsx')
+path <- here('data','awc_vwr_dtw_MASTER_05_2025.xlsx')
 # read excel file
 awc<-read_excel(path, sheet = "awc_vwr") 
 # format the date column from decimal to date
