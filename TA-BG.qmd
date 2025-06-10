@@ -712,7 +712,7 @@ knitr::include_graphics(here('data','point_frame_photos','SS2_0_2018.JPG'))
 
 Linked pumping wells - 74, 394, 395
 
-Current Status: `r ifelse(awc.req.turnon %>% filter(site == "SS3") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "SS2") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
 
 Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'SS2') %>% select(AWC.req.turnon)`
 
