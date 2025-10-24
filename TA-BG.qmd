@@ -86,7 +86,6 @@ on.off1 <- on.off1 %>% select(site, date, on.off, on.off.1)
 
 ```
 
-
 # On/Off Well Management
 
 The Water Agreement and Green Book established protocols for determining the operational status of LADWP pumping wells, based on soil moisture and vegetation measurements. To fulfill monitoring requirements under the Agreement, the Water Department regularly assesses soil moisture content and vegetation leaf area index (in collaboration with LADWP) at 22 permanent sites within wellfields and seven sites in control areas. Soil moisture monitoring occurs monthly, while vegetation monitoring takes place annually in June. Each monitoring site is associated with one or more LADWP pumping wells.
@@ -108,7 +107,6 @@ The right margin contains a photo of the site, production wells linked to the si
 -   `Pan`: Use slider range selector to display custom time periods.
 -   `Zoom in`: Drag horizontally to select time period or drag vertically to select a custom y-axis range.
 -   `Grouped Selection`: Selection in any plot will update all plots with this selection.
-
 
 ```{r}
 linked_wells <- data.frame(
@@ -147,6 +145,7 @@ linked_wells <- data.frame(
 
 
 ```
+
 ### TABOOSE/ABERDEEN MONITORING SITE #3
 
 ```{r, fig.height=3}
@@ -162,7 +161,7 @@ plot_awc_dygraph(awc1,"TA3")
 <aside>
 
 ```{r ,echo=FALSE, cache=TRUE,dpi=30, fig.cap="Taboose/Aberdeen Monitoring Site #3"}
-knitr::include_graphics(here('data','point_frame_photos','TA3_0to100m.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','TA3_0to100m.JPG'))
 ```
 
 Linked pumping wells - 106, 110, 111, 114
@@ -207,7 +206,7 @@ plot_awc_dygraph(awc1,"TA4")
 <aside>
 
 ```{r ,fig.cap="Taboose/Aberdeen Monitoring Site #4",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','TA4_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','TA4_0_2018.JPG'))
 ```
 
 Linked pumping wells - 342, 347
@@ -239,7 +238,6 @@ plot_linked_wells_single(tm2, "TA5", linked_wells)
 
 ```
 
-
 ```{r, fig.height=3}
 
 # AWC and VWR
@@ -250,7 +248,7 @@ plot_awc_dygraph(awc1,"TA5")
 <aside>
 
 ```{r ,fig.cap="Taboose/Aberdeen Monitoring Site #5",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','TA5_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','TA5_0_2018.JPG'))
 ```
 
 Linked pumping wells - 349
@@ -297,7 +295,7 @@ plot_awc_dygraph(awc1,"TA6")
 <aside>
 
 ```{r ,fig.cap="Taboose/Aberdeen Monitoring Site #6",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','TA6_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','TA6_0_2018.JPG'))
 ```
 
 Linked pumping wells - 109, 370
@@ -328,7 +326,6 @@ plot_on_off(on.off1,"TA6")
 plot_linked_wells_single(tm2, "TS1", linked_wells)
 ```
 
-
 ```{r, fig.height=3}
 
 # AWC and VWR
@@ -339,11 +336,10 @@ plot_awc_dygraph(awc1,"TS1")
 <aside>
 
 ```{r ,fig.cap="Thibaut/Sawmill Monitoring Site #1",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','TS1_0to100m.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','TS1_0to100m.JPG'))
 ```
 
 Linked pumping wells - 159
-
 
 Current Status: `r ifelse(awc.req.turnon %>% filter(site == "TS1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
 
@@ -372,8 +368,6 @@ plot_on_off(on.off1,"TS1")
 plot_linked_wells_single(tm2, "TS2", linked_wells)
 ```
 
-
-
 ```{r, fig.height=3}
 
 # AWC and VWR
@@ -388,11 +382,10 @@ plot_awc_dygraph(awc1,"TS2")
 <aside>
 
 ```{r ,fig.cap="Thibaut/Sawmill Monitoring Site #2",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','TS2_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','TS2_0_2018.JPG'))
 ```
 
 Linked pumping wells - 155
-
 
 Current Status: `r ifelse(awc.req.turnon %>% filter(site == "TS2") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
 
@@ -430,7 +423,7 @@ plot_awc_dygraph(awc1,"TS3")
 <aside>
 
 ```{r ,fig.cap="Thibaut/Sawmill Monitoring Site #3",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','TS3_0to100m.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','TS3_0to100m.JPG'))
 ```
 
 Linked pumping wells - 103, 104, 382
@@ -461,7 +454,6 @@ plot_on_off(on.off1,"TS3")
 plot_linked_wells(tm2, "TS4", linked_wells)
 ```
 
-
 ```{r, fig.height=3}
 
 # AWC and VWR
@@ -472,7 +464,7 @@ plot_awc_dygraph(awc1,"TS4")
 <aside>
 
 ```{r ,fig.cap="Thibaut/Sawmill Monitoring Site #4",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','TS4_0to100m.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','TS4_0to100m.JPG'))
 ```
 
 Linked pumping wells - 380, 381
@@ -508,7 +500,7 @@ plot_awc_dygraph(awc1,"TSC")
 <aside>
 
 ```{r ,fig.cap="Thibaut/Sawmill Control Site",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','TSC_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','TSC_0_2018.JPG'))
 ```
 
 </aside>
@@ -535,14 +527,13 @@ plot_awc_dygraph(awc1,"IO1")
 
 <aside>
 
-```{r ,fig.cap="Independence/Oak Monitoring Site",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','IO1_0to100m.JPG'))
+```{r ,fig.cap="Independence/Oak Monitoring Site #1",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('docs','data','point_frame_photos','IO1_0to100m.JPG'))
 ```
 
 Linked pumping wells - 61, 391, 400
 
-Current Status: `r ifelse(awc.req.turnon %>% filter(site == "IO1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
-Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'IO1') %>% select(AWC.req.turnon)`
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "IO1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')` Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'IO1') %>% select(AWC.req.turnon)`
 
 </aside>
 
@@ -574,8 +565,8 @@ plot_awc_dygraph(awc1,"IO2")
 
 <aside>
 
-```{r ,fig.cap="Independence/Oak Monitoring Site",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','IO2_0_2018.JPG'))
+```{r ,fig.cap="Independence/Oak Monitoring Site #2",echo=FALSE, cache=TRUE,dpi=30}
+knitr::include_graphics(here('docs','data','point_frame_photos','IO2_0_2018.JPG'))
 ```
 
 Linked pumping wells - 63
@@ -612,7 +603,7 @@ plot_awc_dygraph(awc1,"IC1")
 <aside>
 
 ```{r ,fig.cap="Independence/Oak Control Site #1",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','IC1_0to100m.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','IC1_0to100m.JPG'))
 ```
 
 </aside>
@@ -637,7 +628,7 @@ plot_awc_dygraph(awc1,"IC2")
 <aside>
 
 ```{r ,fig.cap="Independence/Oak Control Site #2",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','IC2_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','IC2_0_2018.JPG'))
 ```
 
 </aside>
@@ -666,12 +657,12 @@ plot_awc_dygraph(awc1,"SS1")
 <aside>
 
 ```{r ,fig.cap="Symmes/Shepherd Monitoring Site #1",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','SS1_0to100m.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','SS1_0to100m.JPG'))
 ```
 
 Linked pumping wells - 69, 392, 393
 
-Current Status: `r ifelse(awc.req.turnon %>% filter(site == "SS1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')``
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "SS1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
 
 Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'SS1') %>% select(AWC.req.turnon)`
 
@@ -697,7 +688,6 @@ plot_on_off(on.off1,"SS1")
 plot_linked_wells(tm2, "SS2", linked_wells)
 ```
 
-
 ```{r, fig.height=3}
 # AWC and VWR
 plot_awc_dygraph(awc1,"SS2")
@@ -707,7 +697,7 @@ plot_awc_dygraph(awc1,"SS2")
 <aside>
 
 ```{r ,fig.cap="Symmes/Shepherd Monitoring Site #2",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','SS2_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','SS2_0_2018.JPG'))
 ```
 
 Linked pumping wells - 74, 394, 395
@@ -734,7 +724,6 @@ plot_on_off(on.off1,"SS2")
 
 ### SYMMES/SHEPHERD MONITORING SITE #3
 
-
 ```{r, fig.height=3}
 plot_linked_wells(tm2, "SS3", linked_wells)
 ```
@@ -749,7 +738,7 @@ plot_awc_dygraph(awc1,"SS3")
 <aside>
 
 ```{r ,fig.cap="Symmes/Shepherd Monitoring Site #3",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','SS3_0to100m.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','SS3_0to100m.JPG'))
 ```
 
 Linked pumping wells - 92, 396
@@ -776,7 +765,6 @@ plot_on_off(on.off1,"SS3")
 
 ### SYMMES/SHEPHERD MONITORING SITE #4
 
-
 ```{r, fig.height=3}
 plot_linked_wells(tm2, "SS4", linked_wells)
 ```
@@ -790,7 +778,7 @@ plot_awc_dygraph(awc1,"SS4")
 <aside>
 
 ```{r ,fig.cap="Symmes/Shepherd Monitoring Site #4",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','SS4_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','SS4_0_2018.JPG'))
 ```
 
 Linked pumping wells - 75, 345
@@ -817,7 +805,6 @@ plot_on_off(on.off1,"SS4")
 
 ### BAIRS GEORGES MONITORING SITE #2
 
-
 ```{r, fig.height=3}
 plot_linked_wells(tm2, "BG2", linked_wells)
 ```
@@ -832,7 +819,7 @@ plot_awc_dygraph(awc1,"BG2")
 <aside>
 
 ```{r ,fig.cap="Bairs/Georges Monitoring Site #2",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','BG2_0to100m.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','BG2_0to100m.JPG'))
 ```
 
 Linked pumping wells - 76, 403, 343, 348
@@ -869,7 +856,7 @@ plot_awc_dygraph(awc1,"BGC")
 <aside>
 
 ```{r ,fig.cap="Bairs/Georges Control Site",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('data','point_frame_photos','BGC_0to100m.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','BGC_0to100m.JPG'))
 ```
 
 </aside>

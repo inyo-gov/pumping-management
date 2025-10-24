@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: docs
+  # resources:
+  #   - "data/point_frame_photos/**"
 
 website:
   title: "Soil Plant Water Balance and Groundwater"

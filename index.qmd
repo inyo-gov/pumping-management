@@ -189,7 +189,7 @@ plot_awc_dygraph(awc1,"LW1")
 <aside>
 
 ```{r ,echo=FALSE, cache=TRUE,dpi=30, fig.cap="Laws Monitoring Site #1"}
-knitr::include_graphics(here('data','point_frame_photos','L1_0to100m.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','L1_0to100m.JPG'))
 
 # LW2_0_2018.JPG
 
@@ -229,7 +229,7 @@ plot_awc_dygraph(awc1,"LW2")
 <aside>
 
 ```{r ,echo=FALSE, cache=TRUE,dpi=30, fig.cap="Laws Monitoring Site #2"}
-knitr::include_graphics(here('data','point_frame_photos','LW2_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','LW2_0_2018.JPG'))
 
 ```
 
@@ -270,7 +270,7 @@ plot_awc_dygraph(awc1,"LW3")
 <aside>
 
 ```{r ,echo=FALSE, cache=TRUE,dpi=30, fig.cap="Laws Monitoring Site #3"}
-knitr::include_graphics(here('data','point_frame_photos','LW3_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','LW3_0_2018.JPG'))
 ```
 
 Linked pumping wells - 240, 241, 399, 376, 377
@@ -306,7 +306,7 @@ plot_awc_dygraph(awc1,"BC1")
 <aside>
 
 ```{r ,echo=FALSE, cache=TRUE,dpi=30,  fig.cap="Bishop Control Site #1"}
-knitr::include_graphics(here('data','point_frame_photos','BC1_0to100m.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','BC1_0to100m.JPG'))
 
 ```
 
@@ -333,7 +333,7 @@ plot_awc_dygraph(awc1,"BC2")
 
 ```{r ,echo=FALSE, cache=TRUE,dpi=30,  fig.cap="Bishop Control Site #2"}
 
-knitr::include_graphics(here('data','point_frame_photos','BC2_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','BC2_0_2018.JPG'))
 ```
 
 </aside>
@@ -357,7 +357,7 @@ plot_awc_dygraph(awc1,"BC3")
 <aside>
 
 ```{r ,echo=FALSE, cache=TRUE,dpi=30,  fig.cap="Bishop Control Site #3"}
-knitr::include_graphics(here('data','point_frame_photos','BC3_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','BC3_0_2018.JPG'))
 ```
 
 </aside>
@@ -405,7 +405,7 @@ plot_awc_dygraph(awc1,"BP1")
 <aside>
 
 ```{r ,echo=FALSE, cache=TRUE,dpi=30,  fig.cap="Big Pine Monitoring Site #1"}
-knitr::include_graphics(here('data','point_frame_photos','BP1_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','BP1_0_2018.JPG'))
 ```
 
 Linked pumping wells - 210, 378, 379, 389
@@ -447,7 +447,7 @@ plot_awc_dygraph(awc1,"BP2")
 <aside>
 
 ```{r ,echo=FALSE, cache=TRUE,dpi=30,  fig.cap="Big Pine Monitoring Site #2"}
-knitr::include_graphics(here('data','point_frame_photos','BP2_0to100m.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','BP2_0to100m.JPG'))
 ```
 
 Linked pumping wells - 220, 229, 374, 375
@@ -489,7 +489,7 @@ plot_awc_dygraph(awc1,"BP3")
 <aside>
 
 ```{r ,echo=FALSE, cache=TRUE,dpi=30, fig.cap="Big Pine Monitoring Site #3"}
-knitr::include_graphics(here('data','point_frame_photos','BP3_0to100m.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','BP3_0to100m.JPG'))
 
 ```
 
@@ -531,7 +531,7 @@ plot_awc_dygraph(awc1,"BP4")
 <aside>
 
 ```{r ,echo=FALSE, cache=TRUE,dpi=30, fig.cap="Big Pine Monitoring Site #4"}
-knitr::include_graphics(here('data','point_frame_photos','BP4_0_2018.JPG'))
+knitr::include_graphics(here('docs','data','point_frame_photos','BP4_0_2018.JPG'))
 
 ```
 
