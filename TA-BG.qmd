@@ -1,7 +1,7 @@
 ---
 title: "Soil-Plant Water Balance and Groundwater - Taboose-Aberdeen, Thibaut-Sawmill, Independence-Oak, Symmes-Shepherd, Bairs-Georges"
 description: |
-  On-off pumping management according to Green Book Section III values for Vegetation Water Requirements 1989-2025.
+  On-off pumping management according to Green Book Section III values for Vegetation Water Requirements 1989-2026.
 format: 
   html: 
     toc: true
@@ -17,13 +17,12 @@ format:
 tbl-cap-location: top   
 # number-sections: true    
 affiliation: "Inyo County Water Department"
-affiliation-title: "Senior Scientist"
-date-modified: "2025-06-07"
+date-modified: "2026-04-05"
 citation:
   type: report
   container-title: "Green Book Section III On/Off Pumping Management"
   publisher: "Inyo County Water Department"
-  issued: "2025-06-07"
+  issued: "2026-04-05"
   url: https://github.com/inyo-gov/pumping-management
 google-scholar: true
 ---
@@ -43,12 +42,12 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
 ```{r read-data}
-data_path <- here('data','Totals_Means_2024.csv')
+data_path <- here('data','Totals_Means_2025.csv')
 tm2 <- read_csv(data_path) %>% filter(read != -777)
 
 # set path to input data (excel spreadsheet)
 # path <- 'awc_vwr_dtw_MASTER_8_2021.xlsx'
-path <- here('data','awc_vwr_dtw_MASTER_05_2025.xlsx')
+path <- here('data','awc_vwr_dtw_MASTER_03_2026.xlsx')
 # read excel file
 awc<-read_excel(path, sheet = "awc_vwr") 
 # format the date column from decimal to date
@@ -86,7 +85,6 @@ on.off1 <- on.off1 %>% select(site, date, on.off, on.off.1)
 
 ```
 
-
 # On/Off Well Management
 
 The Water Agreement and Green Book established protocols for determining the operational status of LADWP pumping wells, based on soil moisture and vegetation measurements. To fulfill monitoring requirements under the Agreement, the Water Department regularly assesses soil moisture content and vegetation leaf area index (in collaboration with LADWP) at 22 permanent sites within wellfields and seven sites in control areas. Soil moisture monitoring occurs monthly, while vegetation monitoring takes place annually in June. Each monitoring site is associated with one or more LADWP pumping wells.
@@ -108,7 +106,6 @@ The right margin contains a photo of the site, production wells linked to the si
 -   `Pan`: Use slider range selector to display custom time periods.
 -   `Zoom in`: Drag horizontally to select time period or drag vertically to select a custom y-axis range.
 -   `Grouped Selection`: Selection in any plot will update all plots with this selection.
-
 
 ```{r}
 linked_wells <- data.frame(
@@ -147,6 +144,7 @@ linked_wells <- data.frame(
 
 
 ```
+
 ### TABOOSE/ABERDEEN MONITORING SITE #3
 
 ```{r, fig.height=3}
@@ -161,7 +159,7 @@ plot_awc_dygraph(awc1,"TA3")
 
 <aside>
 
-```{r ,echo=FALSE, cache=TRUE,dpi=30, fig.cap="Taboose/Aberdeen Monitoring Site #3"}
+```{r ,fig.cap="Taboose/Aberdeen Monitoring Site #3",echo=FALSE, cache=TRUE,dpi=30}
 knitr::include_graphics(here('data','point_frame_photos','TA3_0to100m.JPG'))
 ```
 
@@ -238,7 +236,6 @@ plot_on_off(on.off1,"TA4")
 plot_linked_wells_single(tm2, "TA5", linked_wells)
 
 ```
-
 
 ```{r, fig.height=3}
 
@@ -328,7 +325,6 @@ plot_on_off(on.off1,"TA6")
 plot_linked_wells_single(tm2, "TS1", linked_wells)
 ```
 
-
 ```{r, fig.height=3}
 
 # AWC and VWR
@@ -343,7 +339,6 @@ knitr::include_graphics(here('data','point_frame_photos','TS1_0to100m.JPG'))
 ```
 
 Linked pumping wells - 159
-
 
 Current Status: `r ifelse(awc.req.turnon %>% filter(site == "TS1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
 
@@ -372,8 +367,6 @@ plot_on_off(on.off1,"TS1")
 plot_linked_wells_single(tm2, "TS2", linked_wells)
 ```
 
-
-
 ```{r, fig.height=3}
 
 # AWC and VWR
@@ -392,7 +385,6 @@ knitr::include_graphics(here('data','point_frame_photos','TS2_0_2018.JPG'))
 ```
 
 Linked pumping wells - 155
-
 
 Current Status: `r ifelse(awc.req.turnon %>% filter(site == "TS2") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
 
@@ -460,7 +452,6 @@ plot_on_off(on.off1,"TS3")
 ```{r, fig.height=3}
 plot_linked_wells(tm2, "TS4", linked_wells)
 ```
-
 
 ```{r, fig.height=3}
 
@@ -542,6 +533,7 @@ knitr::include_graphics(here('data','point_frame_photos','IO1_0to100m.JPG'))
 Linked pumping wells - 61, 391, 400
 
 Current Status: `r ifelse(awc.req.turnon %>% filter(site == "IO1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
+
 Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'IO1') %>% select(AWC.req.turnon)`
 
 </aside>
@@ -671,7 +663,7 @@ knitr::include_graphics(here('data','point_frame_photos','SS1_0to100m.JPG'))
 
 Linked pumping wells - 69, 392, 393
 
-Current Status: `r ifelse(awc.req.turnon %>% filter(site == "SS1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')``
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "SS1") %>% select(current.status) == "ON", '[ON]{style="font-weight:bold; color:green;"}', '[OFF]{style="font-weight:bold; color:red;"}')`
 
 Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'SS1') %>% select(AWC.req.turnon)`
 
@@ -696,7 +688,6 @@ plot_on_off(on.off1,"SS1")
 ```{r, fig.height=3}
 plot_linked_wells(tm2, "SS2", linked_wells)
 ```
-
 
 ```{r, fig.height=3}
 # AWC and VWR
@@ -733,7 +724,6 @@ plot_on_off(on.off1,"SS2")
 ```
 
 ### SYMMES/SHEPHERD MONITORING SITE #3
-
 
 ```{r, fig.height=3}
 plot_linked_wells(tm2, "SS3", linked_wells)
@@ -776,7 +766,6 @@ plot_on_off(on.off1,"SS3")
 
 ### SYMMES/SHEPHERD MONITORING SITE #4
 
-
 ```{r, fig.height=3}
 plot_linked_wells(tm2, "SS4", linked_wells)
 ```
@@ -816,7 +805,6 @@ plot_on_off(on.off1,"SS4")
 ```
 
 ### BAIRS GEORGES MONITORING SITE #2
-
 
 ```{r, fig.height=3}
 plot_linked_wells(tm2, "BG2", linked_wells)

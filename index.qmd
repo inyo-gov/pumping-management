@@ -1,7 +1,7 @@
 ---
 title: "Soil-Plant Water Balance and Groundwater - Laws, Bishop, Big Pine"
 description: |
-  On-off pumping management according to Green Book Section III values for Vegetation Water Requirements 1989-2025.
+  On-off pumping management according to Green Book Section III values for Vegetation Water Requirements 1989-2026.
 format: 
   html: 
     toc: true
@@ -17,13 +17,12 @@ format:
 tbl-cap-location: top   
 # number-sections: true    
 affiliation: "Inyo County Water Department"
-affiliation-title: "Senior Scientist"
-date-modified: "2025-06-07"
+date-modified: "2026-03-05"
 citation:
   type: report
   container-title: "Green Book Section III On/Off Pumping Management"
   publisher: "Inyo County Water Department"
-  issued: "2025-06-07"
+  issued: "2026-03-05"
   url: https://github.com/inyo-gov/pumping-management
 google-scholar: true
 ---
@@ -42,14 +41,14 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
 ```{r read-data}
-data_path <- here('data','Totals_Means_2024.csv')
+data_path <- here('data','Totals_Means_2025.csv')
 tm2 <- read_csv(data_path) %>% filter(read != -777)
 ```
 
 ```{r}
 
 
-path <- here('data','awc_vwr_dtw_MASTER_05_2025.xlsx')
+path <- here('data','awc_vwr_dtw_MASTER_03_2026.xlsx')
 # read excel file
 awc<-read_excel(path, sheet = "awc_vwr") 
 # format the date column from decimal to date
@@ -121,12 +120,16 @@ plot_linked_wells <- function(data, site_id, linked_wells_df) {
   
   # Merge the filtered data by site_id
   merged_data <- do.call(merge, lapply(split(filtered_data, filtered_data$staid), tozoo))
-  
+  # Fill NA with 0 so bar heights match tooltip (avoids dygraphs interpolating NaN)
+  .core <- coredata(merged_data)
+  .core[is.na(.core)] <- 0
+  coredata(merged_data) <- .core
+
   # Plot the merged data
-  dygraph(merged_data, group = "a") %>% 
+  dygraph(merged_data, group = "a") %>%
     dyStackedBarGroup(site_linked_wells) %>%
     dyAxis("y", label = "Total Annual Pumping (AF)") %>%
-    dyOptions(stackedGraph = TRUE)  # Set stackedGraph option to TRUE
+    dyOptions(stackedGraph = TRUE)
 }
 
 # 
@@ -198,7 +201,7 @@ knitr::include_graphics(here('data','point_frame_photos','L1_0to100m.JPG'))
 Linked pumping wells- 247, 248, 249, 398.
 
 Current Status: `r ifelse(awc.req.turnon %>% filter(site == "LW1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
-                         
+
 Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'LW1') %>% select(AWC.req.turnon)`
 
 </aside>
@@ -261,7 +264,6 @@ plot_on_off(on.off1,"LW2")
 plot_linked_wells(tm2, "LW3", linked_wells)
 ```
 
-
 ```{r, fig.height=3}
 plot_awc_dygraph(awc1,"LW3")
 
@@ -274,7 +276,6 @@ knitr::include_graphics(here('data','point_frame_photos','LW3_0_2018.JPG'))
 ```
 
 Linked pumping wells - 240, 241, 399, 376, 377
-
 
 Current Status: `r ifelse(awc.req.turnon %>% filter(site == "LW3") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
 
@@ -322,8 +323,6 @@ plot_dtw_dygraph(dtw1,"BC1")
 
 ### BISHOP CONTROL SITE #2
 
-
-
 ```{r, fig.height=3}
 plot_awc_dygraph(awc1,"BC2")
 
@@ -347,7 +346,6 @@ plot_dtw_dygraph(dtw1,"BC2")
 <aside>Depth to Water: 796T</aside>
 
 ### BISHOP CONTROL SITE #3
-
 
 ```{r, fig.height=3}
 plot_awc_dygraph(awc1,"BC3")
@@ -452,7 +450,6 @@ knitr::include_graphics(here('data','point_frame_photos','BP2_0to100m.JPG'))
 
 Linked pumping wells - 220, 229, 374, 375
 
-
 Current Status: `r ifelse(awc.req.turnon %>% filter(site == "BP2") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
 
 Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'BP2') %>% select(AWC.req.turnon)`
@@ -522,7 +519,6 @@ plot_on_off(on.off1,"BP3")
 plot_linked_wells_single(tm2, "BP4", linked_wells)
 ```
 
-
 ```{r, fig.height=3}
 plot_awc_dygraph(awc1,"BP4")
 
@@ -537,8 +533,7 @@ knitr::include_graphics(here('data','point_frame_photos','BP4_0_2018.JPG'))
 
 Linked pumping wells - 331
 
-
-Current Status: `r ifelse(awc.req.turnon %>% filter(site == "BP4") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')``
+Current Status: `r ifelse(awc.req.turnon %>% filter(site == "BP4") %>% select(current.status) == "ON", '[ON]{style="font-weight:bold; color:green;"}', '[OFF]{style="font-weight:bold; color:red;"}')`
 
 Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'BP4') %>% select(AWC.req.turnon)`
 

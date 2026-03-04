@@ -2580,7 +2580,10 @@ plot_linked_wells <- function(data, site_id, linked_wells_df) {
 
   # Merge the filtered data by site_id
   merged_data <- do.call(merge, lapply(split(filtered_data, filtered_data$staid), tozoo))
-
+  # Fill NA with 0 so bar heights match tooltip (avoids dygraphs interpolating NaN)
+  .core <- coredata(merged_data)
+  .core[is.na(.core)] <- 0
+  coredata(merged_data) <- .core
 
   # Print the structure of merged_data
   # print(str(merged_data))
@@ -2589,7 +2592,7 @@ plot_linked_wells <- function(data, site_id, linked_wells_df) {
   dygraph(merged_data, group = "a") %>%
     dyStackedBarGroup(site_linked_wells) %>%
     dyAxis("y", label = "Total Annual Pumping (AF)") %>%
-    dyOptions(stackedGraph = TRUE)  # Set stackedGraph option to TRUE
+    dyOptions(stackedGraph = TRUE)
 }
 
 # Define a function to plot single-well data as a bar chart
@@ -2622,7 +2625,9 @@ plot_linked_wells_single <- function(data, site_id, linked_wells_df) {
 
     # Merge the filtered data by site_id
     merged_data <- do.call(merge, lapply(split(filtered_data, filtered_data$staid), tozoo))
-
+    .core <- coredata(merged_data)
+    .core[is.na(.core)] <- 0
+    coredata(merged_data) <- .core
 
   # Plot the data as a bar chart with the title as the staid
   dygraph(merged_data, group = "a", main = site_linked_wells) %>%
