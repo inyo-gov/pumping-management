@@ -17,12 +17,12 @@ format:
 tbl-cap-location: top   
 # number-sections: true    
 affiliation: "Inyo County Water Department"
-date-modified: "2026-04-05"
+date-modified: "2026-03-05"
 citation:
   type: report
   container-title: "Green Book Section III On/Off Pumping Management"
   publisher: "Inyo County Water Department"
-  issued: "2026-04-05"
+  issued: "2026-03-05"
   url: https://github.com/inyo-gov/pumping-management
 google-scholar: true
 ---
@@ -205,7 +205,7 @@ plot_awc_dygraph(awc1,"TA4")
 <aside>
 
 ```{r ,fig.cap="Taboose/Aberdeen Monitoring Site #4",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','TA4_0_2018.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','TA4_0_2018.JPG'))
 ```
 
 Linked pumping wells - 342, 347
@@ -247,7 +247,7 @@ plot_awc_dygraph(awc1,"TA5")
 <aside>
 
 ```{r ,fig.cap="Taboose/Aberdeen Monitoring Site #5",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','TA5_0_2018.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','TA5_0_2018.JPG'))
 ```
 
 Linked pumping wells - 349
@@ -294,7 +294,7 @@ plot_awc_dygraph(awc1,"TA6")
 <aside>
 
 ```{r ,fig.cap="Taboose/Aberdeen Monitoring Site #6",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','TA6_0_2018.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','TA6_0_2018.JPG'))
 ```
 
 Linked pumping wells - 109, 370
@@ -335,7 +335,7 @@ plot_awc_dygraph(awc1,"TS1")
 <aside>
 
 ```{r ,fig.cap="Thibaut/Sawmill Monitoring Site #1",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','TS1_0to100m.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','TS1_0to100m.JPG'))
 ```
 
 Linked pumping wells - 159
@@ -381,7 +381,7 @@ plot_awc_dygraph(awc1,"TS2")
 <aside>
 
 ```{r ,fig.cap="Thibaut/Sawmill Monitoring Site #2",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','TS2_0_2018.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','TS2_0_2018.JPG'))
 ```
 
 Linked pumping wells - 155
@@ -422,7 +422,7 @@ plot_awc_dygraph(awc1,"TS3")
 <aside>
 
 ```{r ,fig.cap="Thibaut/Sawmill Monitoring Site #3",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','TS3_0to100m.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','TS3_0to100m.JPG'))
 ```
 
 Linked pumping wells - 103, 104, 382
@@ -463,7 +463,7 @@ plot_awc_dygraph(awc1,"TS4")
 <aside>
 
 ```{r ,fig.cap="Thibaut/Sawmill Monitoring Site #4",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','TS4_0to100m.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','TS4_0to100m.JPG'))
 ```
 
 Linked pumping wells - 380, 381
@@ -499,7 +499,7 @@ plot_awc_dygraph(awc1,"TSC")
 <aside>
 
 ```{r ,fig.cap="Thibaut/Sawmill Control Site",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','TSC_0_2018.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','TSC_0_2018.JPG'))
 ```
 
 </aside>
@@ -527,7 +527,7 @@ plot_awc_dygraph(awc1,"IO1")
 <aside>
 
 ```{r ,fig.cap="Independence/Oak Monitoring Site #1",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','IO1_0to100m.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','IO1_0to100m.JPG'))
 ```
 
 Linked pumping wells - 61, 391, 400
@@ -567,7 +567,7 @@ plot_awc_dygraph(awc1,"IO2")
 <aside>
 
 ```{r ,fig.cap="Independence/Oak Monitoring Site #2",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','IO2_0_2018.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','IO2_0_2018.JPG'))
 ```
 
 Linked pumping wells - 63
@@ -604,7 +604,7 @@ plot_awc_dygraph(awc1,"IC1")
 <aside>
 
 ```{r ,fig.cap="Independence/Oak Control Site #1",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','IC1_0to100m.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','IC1_0to100m.JPG'))
 ```
 
 </aside>
@@ -629,7 +629,7 @@ plot_awc_dygraph(awc1,"IC2")
 <aside>
 
 ```{r ,fig.cap="Independence/Oak Control Site #2",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','IC2_0_2018.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','IC2_0_2018.JPG'))
 ```
 
 </aside>
@@ -658,7 +658,7 @@ plot_awc_dygraph(awc1,"SS1")
 <aside>
 
 ```{r ,fig.cap="Symmes/Shepherd Monitoring Site #1",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','SS1_0to100m.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','SS1_0to100m.JPG'))
 ```
 
 Linked pumping wells - 69, 392, 393
@@ -698,7 +698,7 @@ plot_awc_dygraph(awc1,"SS2")
 <aside>
 
 ```{r ,fig.cap="Symmes/Shepherd Monitoring Site #2",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','SS2_0_2018.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','SS2_0_2018.JPG'))
 ```
 
 Linked pumping wells - 74, 394, 395
@@ -739,7 +739,7 @@ plot_awc_dygraph(awc1,"SS3")
 <aside>
 
 ```{r ,fig.cap="Symmes/Shepherd Monitoring Site #3",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','SS3_0to100m.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','SS3_0to100m.JPG'))
 ```
 
 Linked pumping wells - 92, 396
@@ -779,7 +779,7 @@ plot_awc_dygraph(awc1,"SS4")
 <aside>
 
 ```{r ,fig.cap="Symmes/Shepherd Monitoring Site #4",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','SS4_0_2018.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','SS4_0_2018.JPG'))
 ```
 
 Linked pumping wells - 75, 345
@@ -820,7 +820,7 @@ plot_awc_dygraph(awc1,"BG2")
 <aside>
 
 ```{r ,fig.cap="Bairs/Georges Monitoring Site #2",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','BG2_0to100m.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','BG2_0to100m.JPG'))
 ```
 
 Linked pumping wells - 76, 403, 343, 348
@@ -857,7 +857,7 @@ plot_awc_dygraph(awc1,"BGC")
 <aside>
 
 ```{r ,fig.cap="Bairs/Georges Control Site",echo=FALSE, cache=TRUE,dpi=30}
-knitr::include_graphics(here('docs','data','point_frame_photos','BGC_0to100m.JPG'))
+knitr::include_graphics(here('data','point_frame_photos','BGC_0to100m.JPG'))
 ```
 
 </aside>
