@@ -5,11 +5,72 @@ library(sf)
 
 sf::sf_use_s2(FALSE)
 
-site_coords_path <- "/Users/zac/workspace/aop-eval/aops/tables/shiny_kr_pumping/data/monitoring/monitoring_site_coords.csv"
-well_points_path <- "/Users/zac/workspace/aop-eval/aops/tables/shiny_kr_pumping/data/monitoring/monitoring_well_points.csv"
-linked_wells_path <- "/Users/zac/workspace/aop-eval/aops/icwd_response/technical_branch/monitoring_sites_22/monitoring_site_linked_wells.csv"
-parcels_path <- "/Users/zac/workspace/inyoShiny/data/parcels.geojson"
-out_dir <- "/Users/zac/workspace/pumping-management/site_images/site_maps"
+script_path <- sub(
+  "^--file=",
+  "",
+  commandArgs(trailingOnly = FALSE)[grep("^--file=", commandArgs(trailingOnly = FALSE))[1]]
+)
+project_dir <- if (!is.na(script_path) && nzchar(script_path)) {
+  normalizePath(file.path(dirname(script_path), ".."), winslash = "/", mustWork = TRUE)
+} else {
+  normalizePath(".", winslash = "/", mustWork = TRUE)
+}
+
+local_sources <- file.path(project_dir, "code", "local_map_sources.R")
+if (file.exists(local_sources)) {
+  source(local_sources)
+}
+
+resolve_input <- function(env_var, local_var, default_path, label, required = TRUE) {
+  candidates <- c(
+    Sys.getenv(env_var, unset = NA_character_),
+    if (exists(local_var, inherits = TRUE)) get(local_var, inherits = TRUE) else NA_character_,
+    default_path
+  )
+  candidates <- candidates[!is.na(candidates) & nzchar(candidates)]
+  for (candidate in candidates) {
+    normalized <- normalizePath(candidate, winslash = "/", mustWork = FALSE)
+    if (file.exists(normalized)) return(normalized)
+  }
+  if (required) {
+    stop(
+      paste0(
+        "Could not find ", label, ". Set ", env_var,
+        ", define ", local_var, " in code/local_map_sources.R, ",
+        "or place the file at ", default_path, "."
+      ),
+      call. = FALSE
+    )
+  }
+  NA_character_
+}
+
+site_coords_path <- resolve_input(
+  "PUMPING_SITE_COORDS",
+  "site_coords_path",
+  file.path(project_dir, "data", "map_sources", "monitoring_site_coords.csv"),
+  "monitoring site coordinates"
+)
+well_points_path <- resolve_input(
+  "PUMPING_WELL_POINTS",
+  "well_points_path",
+  file.path(project_dir, "data", "map_sources", "monitoring_well_points.csv"),
+  "monitoring well points"
+)
+linked_wells_path <- resolve_input(
+  "PUMPING_LINKED_WELLS",
+  "linked_wells_path",
+  file.path(project_dir, "data", "map_sources", "monitoring_site_linked_wells.csv"),
+  "monitoring site linked wells"
+)
+parcels_path <- resolve_input(
+  "PUMPING_PARCELS_GEOJSON",
+  "parcels_path",
+  file.path(project_dir, "data", "map_sources", "parcels.geojson"),
+  "parcel geometry",
+  required = FALSE
+)
+out_dir <- file.path(project_dir, "site_images", "site_maps")
 
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 

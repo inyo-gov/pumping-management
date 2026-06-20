@@ -18,3 +18,10 @@ README_files
 
 # Ignore unwanted ._file.jpg files
 ._*
+
+# Local machine-specific map source paths
+code/local_map_sources.R
+
+# Local OS/render artifacts
+.DS_Store
+*_files/
