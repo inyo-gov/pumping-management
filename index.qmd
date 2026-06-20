@@ -4,7 +4,7 @@ description: |
   On-off pumping management according to Green Book Section III values for Vegetation Water Requirements 1989-2026.
 format: 
   html: 
-    toc: true
+    toc: false
     toc-depth: 3
     anchor-sections: true
     smooth-scroll: true
@@ -17,12 +17,12 @@ format:
 tbl-cap-location: top   
 # number-sections: true    
 affiliation: "Inyo County Water Department"
-date-modified: "2026-03-05"
+date-modified: "2026-06-19"
 citation:
   type: report
   container-title: "Green Book Section III On/Off Pumping Management"
   publisher: "Inyo County Water Department"
-  issued: "2026-03-05"
+  issued: "2026-06-19"
   url: https://github.com/inyo-gov/pumping-management
 google-scholar: true
 ---
@@ -37,54 +37,24 @@ library(here)
 
 # source functions----
 source(here('code','functions.R'))
+source(here('code','input_schema.R'))
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
 ```{r read-data}
 data_path <- here('data','Totals_Means_2025.csv')
 tm2 <- read_csv(data_path) %>% filter(read != -777)
-```
 
-```{r}
+input_path <- here('data','onoff_input_05_2026.xlsx')
+input <- read_onoff_input_workbook(input_path)
+report_data <- as_report_inputs(input)
 
-
-path <- here('data','awc_vwr_dtw_MASTER_03_2026.xlsx')
-# read excel file
-awc<-read_excel(path, sheet = "awc_vwr") 
-# format the date column from decimal to date
-awc1 <- awc %>% mutate(date1 = format(date_decimal(date), "%Y-%m-%d"))
-# create new date column in date format
-awc1$date <- as.Date(awc1$date1)
-# remove rows with NAs in date column and select columns
-awc1 <- awc1 %>% filter(!is.na(awc),!is.na(vwr),!is.na(date)) %>% select(site,date,awc,vwr)
-
-```
-
-```{r}
-# read on/off table
-awc.req.turnon<-read_excel(path, sheet = "on.off.table") 
-
-```
-
-```{r}
-
-# READ dtw and convert to date for zoo object
-dtw.pm<-read_excel(path, sheet = "dtw") 
-dtw1 <- dtw.pm %>% mutate(date1 = format(date_decimal(date), "%Y-%m-%d")) %>% filter(!is.na(dtw))
-dtw1$date <- as.Date(dtw1$date1)
-dtw1 <- dtw1 %>% filter(!is.na(dtw),!is.na(site),!is.na(date)) %>% select(site, date, dtw)
-
-```
-
-```{r}
-# READ on/off history and convert to date for zoo object
-on.off<-read_excel(path, sheet = "on.off") 
-on.off1 <-on.off %>% mutate(date1 = format(date_decimal(date), "%Y-%m-%d")) 
-on.off1$date <- as.Date(on.off1$date1)
-
-on.off1 <- on.off1 %>% select(site, date, on.off, on.off.1) 
-
-# tm2
+awc1 <- report_data$awc1
+dtw1 <- report_data$dtw1
+on.off1 <- report_data$on.off1
+awc.req.turnon <- report_data$awc.req.turnon
+linked_wells <- report_data$linked_wells
+site_metadata <- report_data$site_metadata
 ```
 
 ```{r}
@@ -139,416 +109,363 @@ plot_linked_wells <- function(data, site_id, linked_wells_df) {
 
 # On/Off Well Management
 
-The Water Agreement and Green Book established protocols for determining the operational status of LADWP pumping wells, based on soil moisture and vegetation measurements. To fulfill monitoring requirements under the Agreement, the Water Department regularly assesses soil moisture content and vegetation leaf area index (in collaboration with LADWP) at 22 permanent sites within wellfields and seven sites in control areas. Soil moisture monitoring occurs monthly, while vegetation monitoring takes place annually in June. Each monitoring site is associated with one or more LADWP pumping wells.
+<details>
+<summary>How on/off well management works</summary>
 
-On July 1st and October 1st, if soil moisture levels are inadequate to support vegetation needs at a site, the linked pumping wells go into off status. They remain offline until soil moisture levels surpass the threshold required by the vegetation at the time the linked wells went into off status. This operational approach is known as the On/Off management strategy.
+The Water Agreement and Green Book establish protocols for determining the operational status of LADWP pumping wells based on soil moisture and vegetation measurements. To fulfill monitoring requirements under the Agreement, the Water Department regularly assesses soil moisture content and vegetation leaf area index, in collaboration with LADWP, at 22 permanent sites within wellfields and seven sites in control areas. Soil moisture monitoring occurs monthly, while vegetation monitoring occurs annually in June. Each monitoring site is associated with one or more LADWP pumping wells.
 
-Since its inception in 1990, LADWP has frequently maintained numerous wells in the Off status, adhering to subsequent agreements with the County.
+On July 1 and October 1, if soil moisture levels are inadequate to support vegetation needs at a site, the linked pumping wells are placed in off status. They remain offline until soil moisture levels exceed the threshold required by the vegetation at the time the linked wells entered off status. This operational approach is known as the on/off management strategy.
+
+Since the strategy began in 1990, LADWP has frequently maintained numerous wells in off status, consistent with subsequent agreements with the County.
+
+</details>
 
 # Soil-Plant Water Balance and Groundwater
 
-Data for each of the permanent monitoring sites (1990-present) is presented in four plots. The first plot includes pumped water from linked production wells. The second includes available water content (AWC) and vegetation water requirements (VWR) over time. The third plot includes the depth to water table (DTW) from the monitoring well on the site. The last plot represents time periods when the site was either in on or off status over the management period.
+<details>
+<summary>How to read the site plots</summary>
 
-The right margin contains a photo of the site, production wells linked to the site, current on/off status, AWC required for well turn-on, and the identity of the associated monitoring well.
+Data for each permanent monitoring site (1990-present) are presented in three linked plots. The first plot shows pumping from linked production wells. The second shows available water content (AWC) and vegetation water requirements (VWR) over time. The third shows depth to water (DTW) from the associated monitoring well. Green shading marks periods when the site was in on status; off periods are unshaded.
+
+Each site starts with a compact card showing the site photo, linked production wells, current on/off status, AWC required for well turn-on, and the associated monitoring well.
 
 **Instructions**
 
--   `Zoom out`: Double click on a plot to zoom out to the full time series extent.
--   `Data point highlighting`: Move cursor over the plot to display data values in the legend.
--   `Pan`: Use slider range selector to display custom time periods.
--   `Zoom in`: Drag horizontally to select time period or drag vertically to select a custom y-axis range.
--   `Grouped Selection`: Selection in any plot will update all plots with this selection.
+-   `Zoom out`: Double-click a plot to return to the full time-series extent.
+-   `Data point highlighting`: Move the cursor over a plot to display data values in the legend.
+-   `Zoom in`: Drag horizontally to select a time period or vertically to select a custom y-axis range.
+-   `Grouped selection`: Selecting a time period in one plot updates all plots.
+
+</details>
 
 ```{r}
 
-linked_wells <- data.frame(
-  Site = rep(c("BP1", "BP2", "BP3", "BP4", "LW1", "LW2", "LW3"),
-             times = c(4, 4, 4, 1, 4, 4, 5)),
-  Linked_Well = c("W210", "W378", "W379", "W389",   # Linked wells for BP1
-                   "W220","W229","W374","W375",        # Linked wells for BP2
-                  "W222", "W223", "W231", "W232", # Linked wells for BP3
-                  "W331",                          # Linked wells for BP4
-                  "W247", "W248", "W249", "W398",  # Linked wells for LW1
-                  "W236", "W239", "W243", "W244",  # Linked wells for LW2
-                  "W240", "W241", "W399", "W376", "W377") # Linked wells for LW3
-)
-#--
+# Linked wells now come from the canonical input workbook.
+invisible(linked_wells)
 
+site_card <- function(
+  site_id,
+  title,
+  image_src,
+  image_alt,
+  monitoring_well_label = NULL,
+  map_src = NULL,
+  map_alt = NULL
+) {
+  status_row <- awc.req.turnon[awc.req.turnon$site == site_id, , drop = FALSE]
+  status_row <- status_row[1, , drop = FALSE]
+  current_status <- status_row$current.status
+  status_text <- ifelse(length(current_status) == 0 || is.na(current_status), "NA", current_status)
+  status_class <- ifelse(status_text == "ON", "status-on", "status-off")
+  turn_on_req <- status_row$AWC.req.turnon
+  turn_on_text <- ifelse(length(turn_on_req) == 0 || is.na(turn_on_req), "NA", turn_on_req)
+  wells_text <- linked_wells$Linked_Well[linked_wells$Site == site_id] %>%
+    stringr::str_remove("^W") %>%
+    paste(collapse = ", ")
+  wells_text <- ifelse(nzchar(wells_text), wells_text, "Control site")
 
-# tm2 %>% semi_join(linked_wells, by = c("staid" = "Linked_Well")) %>% distinct(staid)
+  htmltools::tags$section(
+    class = ifelse(is.null(map_src), "site-card site-card-single", "site-card site-card-with-map"),
+    htmltools::tags$div(
+      class = ifelse(is.null(map_src), "site-card-media single-media", "site-card-media"),
+      htmltools::tags$figure(
+        class = "site-card-figure",
+        htmltools::tags$img(
+            class = "site-card-image site-card-photo-image",
+          src = image_src,
+          alt = image_alt
+        ),
+        htmltools::tags$figcaption("Site photo")
+      ),
+      if (!is.null(map_src)) {
+        htmltools::tags$figure(
+          class = "site-card-figure",
+          htmltools::tags$img(
+            class = "site-card-image site-card-map-image",
+            src = map_src,
+            alt = ifelse(is.null(map_alt), paste(title, "linked wells map"), map_alt)
+          ),
+          htmltools::tags$figcaption("Linked wells map")
+        )
+      }
+    ),
+    htmltools::tags$div(
+      class = "site-card-body",
+      htmltools::tags$p(class = "site-card-eyebrow", site_id),
+      htmltools::tags$h4(class = "site-card-title", title),
+      htmltools::tags$dl(
+        class = "site-card-facts",
+        htmltools::tags$div(
+          htmltools::tags$dt("Current status"),
+          htmltools::tags$dd(
+            htmltools::tags$span(class = paste("site-status", status_class), status_text)
+          )
+        ),
+        htmltools::tags$div(
+          htmltools::tags$dt("Linked pumping wells"),
+          htmltools::tags$dd(wells_text)
+        ),
+        htmltools::tags$div(
+          htmltools::tags$dt("Soil AWC required for turn-on"),
+          htmltools::tags$dd(turn_on_text)
+        ),
+        htmltools::tags$div(
+          htmltools::tags$dt("Monitoring well"),
+          htmltools::tags$dd(ifelse(is.null(monitoring_well_label), "NA", monitoring_well_label))
+        )
+      )
+    )
+  )
+}
 ```
 
 ### LAWS MONITORING SITE #1
 
-```{r, fig.height=3}
-plot_linked_wells(tm2, "LW1", linked_wells)
+```{r}
+site_card(
+  "LW1",
+  "Laws Monitoring Site #1",
+  "site_images/L1_0to100m.JPG",
+  "Laws Monitoring Site #1 point-frame photo",
+  monitoring_well_label = "795T",
+  map_src = "site_images/site_maps/LW1_linked_wells_map.png",
+  map_alt = "Static map showing Laws Monitoring Site #1 and linked wells W247, W248, W249, and W398"
+)
 ```
 
-```{r, fig.height=3}
-
-plot_awc_dygraph(awc1,"LW1")
-```
-
-<aside>
-
-```{r ,echo=FALSE, cache=TRUE,dpi=30, fig.cap="Laws Monitoring Site #1"}
-knitr::include_graphics(here('data','point_frame_photos','L1_0to100m.JPG'))
-
-# LW2_0_2018.JPG
-
-```
-
-Linked pumping wells- 247, 248, 249, 398.
-
-Current Status: `r ifelse(awc.req.turnon %>% filter(site == "LW1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
-
-Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'LW1') %>% select(AWC.req.turnon)`
-
-</aside>
-
-```{r, fig.height=3}
-
-plot_dtw_dygraph(dtw1,"LW1")
-```
-
-<aside>Depth to Water: 795T</aside>
-
-```{r, fig.height=1}
-
-plot_on_off(on.off1,"LW1")
+```{r}
+plot_site_dashboard(
+  tm2,
+  awc1,
+  dtw1,
+  on.off1,
+  "LW1",
+  linked_wells,
+  monitoring_well_label = "Depth to Water: 795T"
+)
 ```
 
 ### LAWS MONITORING SITE #2
 
-```{r, fig.height=3}
-plot_linked_wells(tm2, "LW2", linked_wells)
+```{r}
+site_card(
+  "LW2",
+  "Laws Monitoring Site #2",
+  "site_images/LW2_0_2018.JPG",
+  "Laws Monitoring Site #2 point-frame photo",
+  monitoring_well_label = "V001G",
+  map_src = "site_images/site_maps/LW2_linked_wells_map.png",
+  map_alt = "Static map showing Laws Monitoring Site #2 and linked wells W236, W239, W243, and W244"
+)
 ```
 
-```{r, fig.height=3}
-plot_awc_dygraph(awc1,"LW2")
-
-```
-
-<aside>
-
-```{r ,echo=FALSE, cache=TRUE,dpi=30, fig.cap="Laws Monitoring Site #2"}
-knitr::include_graphics(here('data','point_frame_photos','LW2_0_2018.JPG'))
-
-```
-
-Linked pumping wells - 236, 239, 243, 244
-
-Current Status: `r ifelse(awc.req.turnon %>% filter(site == "LW2") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
-
-Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'LW2') %>% select(AWC.req.turnon)`
-
-</aside>
-
-```{r, fig.height=3}
-# DTW
-plot_dtw_dygraph(dtw1,"LW2")
-
-```
-
-<aside>Depth to Water: V001G</aside>
-
-```{r, fig.height=1}
-#on/off bar
-plot_on_off(on.off1,"LW2")
-
+```{r}
+plot_site_dashboard(
+  tm2,
+  awc1,
+  dtw1,
+  on.off1,
+  "LW2",
+  linked_wells,
+  monitoring_well_label = "Depth to Water: V001G"
+)
 ```
 
 ### LAWS MONITORING SITE #3
 
-```{r, fig.height=3}
-plot_linked_wells(tm2, "LW3", linked_wells)
+```{r}
+site_card(
+  "LW3",
+  "Laws Monitoring Site #3",
+  "site_images/LW3_0_2018.JPG",
+  "Laws Monitoring Site #3 point-frame photo",
+  monitoring_well_label = "840T",
+  map_src = "site_images/site_maps/LW3_linked_wells_map.png",
+  map_alt = "Static map showing Laws Monitoring Site #3 and linked wells W240, W241, W399, W376, and W377"
+)
 ```
 
-```{r, fig.height=3}
-plot_awc_dygraph(awc1,"LW3")
-
-```
-
-<aside>
-
-```{r ,echo=FALSE, cache=TRUE,dpi=30, fig.cap="Laws Monitoring Site #3"}
-knitr::include_graphics(here('data','point_frame_photos','LW3_0_2018.JPG'))
-```
-
-Linked pumping wells - 240, 241, 399, 376, 377
-
-Current Status: `r ifelse(awc.req.turnon %>% filter(site == "LW3") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
-
-Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'LW3') %>% select(AWC.req.turnon)`
-
-</aside>
-
-```{r, fig.height=3}
-# DTW
-plot_dtw_dygraph(dtw1,"LW3")
-
-```
-
-<aside>Depth to Water: 840T</aside>
-
-```{r, fig.height=1}
-#on/off bar
-plot_on_off(on.off1,"LW3")
-
+```{r}
+plot_site_dashboard(
+  tm2,
+  awc1,
+  dtw1,
+  on.off1,
+  "LW3",
+  linked_wells,
+  monitoring_well_label = "Depth to Water: 840T"
+)
 ```
 
 ### BISHOP CONTROL SITE #1
 
-```{r, fig.height=3}
+```{r}
+site_card(
+  "BC1",
+  "Bishop Control Site #1",
+  "site_images/BC1_0to100m.JPG",
+  "Bishop Control Site #1 point-frame photo",
+  monitoring_well_label = "USGS 2AI"
+)
+```
+
+```{r, fig.height=2.55}
 plot_awc_dygraph(awc1,"BC1")
 
 ```
 
-<aside>
-
-```{r ,echo=FALSE, cache=TRUE,dpi=30,  fig.cap="Bishop Control Site #1"}
-knitr::include_graphics(here('data','point_frame_photos','BC1_0to100m.JPG'))
-
-```
-
-</aside>
-
-```{r, fig.height=3}
+```{r, fig.height=2.55}
 # DTW
 plot_dtw_dygraph(dtw1,"BC1")
 
 ```
 
-<aside>Depth to Water: USGS 2AI</aside>
-
 ### BISHOP CONTROL SITE #2
 
-```{r, fig.height=3}
+```{r}
+site_card(
+  "BC2",
+  "Bishop Control Site #2",
+  "site_images/BC2_0_2018.JPG",
+  "Bishop Control Site #2 point-frame photo",
+  monitoring_well_label = "796T"
+)
+```
+
+```{r, fig.height=2.55}
 plot_awc_dygraph(awc1,"BC2")
 
 ```
 
-<aside>
-
-```{r ,echo=FALSE, cache=TRUE,dpi=30,  fig.cap="Bishop Control Site #2"}
-
-knitr::include_graphics(here('data','point_frame_photos','BC2_0_2018.JPG'))
-```
-
-</aside>
-
-```{r, fig.height=3}
+```{r, fig.height=2.55}
 # DTW
 plot_dtw_dygraph(dtw1,"BC2")
 
 ```
 
-<aside>Depth to Water: 796T</aside>
-
 ### BISHOP CONTROL SITE #3
 
-```{r, fig.height=3}
+```{r}
+site_card(
+  "BC3",
+  "Bishop Control Site #3",
+  "site_images/BC3_0_2018.JPG",
+  "Bishop Control Site #3 point-frame photo",
+  monitoring_well_label = "797T"
+)
+```
+
+```{r, fig.height=2.55}
 plot_awc_dygraph(awc1,"BC3")
 
 ```
 
-<aside>
-
-```{r ,echo=FALSE, cache=TRUE,dpi=30,  fig.cap="Bishop Control Site #3"}
-knitr::include_graphics(here('data','point_frame_photos','BC3_0_2018.JPG'))
-```
-
-</aside>
-
-```{r, fig.height=3}
+```{r, fig.height=2.55}
 # DTW
 plot_dtw_dygraph(dtw1,"BC3")
 
 ```
 
-<aside>Depth to Water: 797T</aside>
-
 ### BIG PINE MONITORING SITE #1
 
-```{r, fig.height=3}
-plot_linked_wells(tm2, "BP1", linked_wells)
+```{r}
+site_card(
+  "BP1",
+  "Big Pine Monitoring Site #1",
+  "site_images/BP1_0_2018.JPG",
+  "Big Pine Monitoring Site #1 point-frame photo",
+  monitoring_well_label = "798T",
+  map_src = "site_images/site_maps/BP1_linked_wells_map.png",
+  map_alt = "Static map showing Big Pine Monitoring Site #1 and linked wells W210, W378, W379, and W389"
+)
 ```
 
-```{r fig.height= 3, eval=FALSE}
-#| label: bp1-linked-wells
-#| fig-cap: "BP1 linked wells"
-
-linked_wells <- c("W210","W378","W379","W389")
-
-DF <- tm2 %>% filter(staid %in% linked_wells) %>% mutate(case_when(read < 0 ~ 0)) %>% group_by(roy,staid)%>% summarise(total_pumping = sum(read)) %>% select(roy,staid,total_pumping) %>% mutate(roy2 = make_date(roy,4,1))
-
-DF[is.na(DF)] <- 0
-
-Data <- do.call(merge, lapply(split(DF, DF$staid), tozoo))
-
-Data %>% dygraph(group = 'a') %>% 
-  dyStackedBarGroup(c("W210","W378","W379","W389"))%>%
-  dyAxis("y", label = "Total Annual Pumping (AF)", valueRange = c(0, 8000))
-
-```
-
-```{r, fig.height=3}
-
-# AWC and VWR
-
-plot_awc_dygraph(awc1,"BP1")
-
-```
-
-<aside>
-
-```{r ,echo=FALSE, cache=TRUE,dpi=30,  fig.cap="Big Pine Monitoring Site #1"}
-knitr::include_graphics(here('data','point_frame_photos','BP1_0_2018.JPG'))
-```
-
-Linked pumping wells - 210, 378, 379, 389
-
-Current Status: `r ifelse(awc.req.turnon %>% filter(site == "BP1") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
-
-Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'BP1') %>% select(AWC.req.turnon)`
-
-</aside>
-
-```{r, fig.height=3}
-# DTW
-plot_dtw_dygraph(dtw1,"BP1")
- 
-```
-
-<aside>Depth to Water: 798T</aside>
-
-```{r, fig.height=1}
-#on/off bar
-plot_on_off(on.off1,"BP1")
-
+```{r}
+plot_site_dashboard(
+  tm2,
+  awc1,
+  dtw1,
+  on.off1,
+  "BP1",
+  linked_wells,
+  monitoring_well_label = "Depth to Water: 798T"
+)
 ```
 
 ### BIG PINE MONITORING SITE #2
 
-```{r, fig.height=3}
-plot_linked_wells(tm2, "BP2", linked_wells)
+```{r}
+site_card(
+  "BP2",
+  "Big Pine Monitoring Site #2",
+  "site_images/BP2_0to100m.JPG",
+  "Big Pine Monitoring Site #2 point-frame photo",
+  monitoring_well_label = "799T",
+  map_src = "site_images/site_maps/BP2_linked_wells_map.png",
+  map_alt = "Static map showing Big Pine Monitoring Site #2 and linked wells W220, W229, W374, and W375"
+)
 ```
 
-```{r, fig.height=3}
-
-# AWC and VWR
-plot_awc_dygraph(awc1,"BP2")
-
-
-```
-
-<aside>
-
-```{r ,echo=FALSE, cache=TRUE,dpi=30,  fig.cap="Big Pine Monitoring Site #2"}
-knitr::include_graphics(here('data','point_frame_photos','BP2_0to100m.JPG'))
-```
-
-Linked pumping wells - 220, 229, 374, 375
-
-Current Status: `r ifelse(awc.req.turnon %>% filter(site == "BP2") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
-
-Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'BP2') %>% select(AWC.req.turnon)`
-
-</aside>
-
-```{r, fig.height=3}
-# DTW
-plot_dtw_dygraph(dtw1,"BP2")
-
-```
-
-<aside>Depth to Water: 799T</aside>
-
-```{r, fig.height=1}
-#on/off bar
-
-plot_on_off(on.off1,"BP2")
-
+```{r}
+plot_site_dashboard(
+  tm2,
+  awc1,
+  dtw1,
+  on.off1,
+  "BP2",
+  linked_wells,
+  monitoring_well_label = "Depth to Water: 799T"
+)
 ```
 
 ### BIG PINE MONITORING SITE #3
 
-```{r, fig.height=3}
-plot_linked_wells(tm2, "BP3", linked_wells)
+```{r}
+site_card(
+  "BP3",
+  "Big Pine Monitoring Site #3",
+  "site_images/BP3_0to100m.JPG",
+  "Big Pine Monitoring Site #3 point-frame photo",
+  monitoring_well_label = "567T",
+  map_src = "site_images/site_maps/BP3_linked_wells_map.png",
+  map_alt = "Static map showing Big Pine Monitoring Site #3 and linked wells W222, W223, W231, and W232"
+)
 ```
 
-```{r, fig.height=3}
-# AWC and VWR
-plot_awc_dygraph(awc1,"BP3")
-
-```
-
-<aside>
-
-```{r ,echo=FALSE, cache=TRUE,dpi=30, fig.cap="Big Pine Monitoring Site #3"}
-knitr::include_graphics(here('data','point_frame_photos','BP3_0to100m.JPG'))
-
-```
-
-Linked pumping wells - 222, 223, 231, 232
-
-Current Status: `r ifelse(awc.req.turnon %>% filter(site == "BP3") %>% select(current.status) == "ON", '<span style="font-weight:bold; color:green;">ON</span>', '<span style="font-weight:bold; color:red;">OFF</span>')`
-
-Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'BP3') %>% select(AWC.req.turnon)`
-
-</aside>
-
-```{r, fig.height=3}
-# DTW
-
-plot_dtw_dygraph(dtw1,"BP3")
-
-```
-
-<aside>Depth to Water: 567T</aside>
-
-```{r, fig.height=1}
-#on/off bar
-plot_on_off(on.off1,"BP3")
-
+```{r}
+plot_site_dashboard(
+  tm2,
+  awc1,
+  dtw1,
+  on.off1,
+  "BP3",
+  linked_wells,
+  monitoring_well_label = "Depth to Water: 567T"
+)
 ```
 
 ### BIG PINE MONITORING SITE #4
 
-```{r, fig.height=3}
-plot_linked_wells_single(tm2, "BP4", linked_wells)
+```{r}
+site_card(
+  "BP4",
+  "Big Pine Monitoring Site #4",
+  "site_images/BP4_0_2018.JPG",
+  "Big Pine Monitoring Site #4 point-frame photo",
+  monitoring_well_label = "800T",
+  map_src = "site_images/site_maps/BP4_linked_wells_map.png",
+  map_alt = "Static map showing Big Pine Monitoring Site #4 and linked well W331"
+)
 ```
 
-```{r, fig.height=3}
-plot_awc_dygraph(awc1,"BP4")
-
-```
-
-<aside>
-
-```{r ,echo=FALSE, cache=TRUE,dpi=30, fig.cap="Big Pine Monitoring Site #4"}
-knitr::include_graphics(here('data','point_frame_photos','BP4_0_2018.JPG'))
-
-```
-
-Linked pumping wells - 331
-
-Current Status: `r ifelse(awc.req.turnon %>% filter(site == "BP4") %>% select(current.status) == "ON", '[ON]{style="font-weight:bold; color:green;"}', '[OFF]{style="font-weight:bold; color:red;"}')`
-
-Soil AWC req. for well turn-on: `r awc.req.turnon %>% filter(site == 'BP4') %>% select(AWC.req.turnon)`
-
-</aside>
-
-```{r, fig.height=3}
-# DTW
-plot_dtw_dygraph(dtw1,"BP4")
-
-```
-
-<aside>Depth to Water: 800T</aside>
-
-```{r, fig.height=1}
-#on/off bar
-plot_on_off(on.off1,"BP4")
-
+```{r}
+plot_site_dashboard(
+  tm2,
+  awc1,
+  dtw1,
+  on.off1,
+  "BP4",
+  linked_wells,
+  monitoring_well_label = "Depth to Water: 800T"
+)
 ```

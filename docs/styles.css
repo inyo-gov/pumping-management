@@ -1,1 +1,391 @@
-/* css styles */
+/* Compact report layout */
+
+body {
+  font-size: 0.95rem;
+}
+
+.navbar {
+  background-color: #2e86ab !important;
+}
+
+.navbar-brand {
+  align-items: center;
+  display: flex;
+}
+
+.navbar .navbar-title,
+.navbar .navbar-nav .nav-link,
+.navbar .quarto-navbar-tools a {
+  color: rgba(255, 255, 255, 0.96) !important;
+  font-weight: 500;
+}
+
+.navbar .navbar-nav .nav-link:hover,
+.navbar .quarto-navbar-tools a:hover {
+  color: #fff !important;
+}
+
+.navbar-brand img {
+  background-color: #fff;
+  border-radius: 4px;
+  height: 40px;
+  margin-right: 10px;
+  max-height: 40px;
+  object-fit: contain;
+  padding: 2px;
+  width: auto;
+}
+
+body.floating .page-columns {
+  display: grid;
+  grid-template-columns:
+    [screen-start] minmax(0, 1fr)
+    [page-start] minmax(0, 56px)
+    [body-start] minmax(640px, 980px)
+    [body-end] minmax(260px, 320px)
+    [page-end] minmax(0, 56px)
+    [screen-end] minmax(0, 1fr);
+  column-gap: 1.1rem;
+}
+
+.page-columns .content {
+  max-width: none;
+}
+
+.page-columns aside {
+  grid-column: body-end / page-end;
+  width: 100%;
+}
+
+h1.title {
+  font-size: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+h2 {
+  font-size: 1.35rem;
+  margin-top: 1.4rem;
+  margin-bottom: 0.65rem;
+}
+
+h3 {
+  border-top: 1px solid #e5e7eb;
+  font-size: 1.25rem;
+  margin-top: 1.4rem;
+  margin-bottom: 0.35rem;
+  padding-top: 0.8rem;
+}
+
+.cell {
+  margin-bottom: 0.45rem;
+}
+
+.cell-output-display {
+  margin-bottom: 0.35rem;
+}
+
+details {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.45rem;
+  margin: 0.75rem 0 1rem;
+  padding: 0.1rem 0.8rem 0.65rem;
+}
+
+summary {
+  color: #334155;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.55rem 0;
+}
+
+details[open] summary {
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 0.65rem;
+}
+
+.site-card {
+  align-items: stretch;
+  background: #fff;
+  border: 1px solid #dbe4ee;
+  border-radius: 0.65rem;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  display: grid;
+  grid-template-columns: 1fr;
+  margin: 0.5rem 0 0.8rem;
+  overflow: hidden;
+}
+
+.site-card-with-map {
+  grid-template-columns: minmax(260px, 0.78fr) minmax(520px, 1.9fr);
+  grid-template-rows: auto 1fr;
+}
+
+.site-card-media {
+  background: #dbe4ee;
+  display: grid;
+  gap: 1px;
+  grid-template-columns: 1fr;
+}
+
+.site-card-with-map .site-card-media {
+  display: contents;
+}
+
+.site-card-with-map .site-card-figure:first-child {
+  border-right: 1px solid #dbe4ee;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.site-card-with-map .site-card-figure:nth-child(2) {
+  border-left: 1px solid #dbe4ee;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+.site-card-with-map .site-card-body {
+  border-right: 1px solid #dbe4ee;
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.site-card-single .site-card-media {
+  background: #dbe4ee;
+}
+
+.site-card-media.single-media {
+  grid-template-columns: 1fr;
+}
+
+.site-card-figure {
+  background: #fff;
+  margin: 0;
+  min-width: 0;
+}
+
+.site-card-image {
+  aspect-ratio: 16 / 9;
+  display: block;
+  width: 100%;
+}
+
+.site-card-photo-image {
+  object-fit: cover;
+}
+
+.site-card-map-image {
+  background: #fff;
+  height: 100%;
+  min-height: 560px;
+  object-fit: contain;
+}
+
+.site-card-figure figcaption {
+  color: #64748b;
+  font-size: 0.74rem;
+  padding: 0.3rem 0.55rem 0.45rem;
+}
+
+.site-card-body {
+  padding: 0.9rem 1rem;
+}
+
+.site-card-eyebrow {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.2rem;
+  text-transform: uppercase;
+}
+
+.site-card-title {
+  font-size: 1.1rem;
+  margin: 0 0 0.7rem;
+}
+
+.site-card-facts {
+  display: grid;
+  gap: 0.5rem 0.8rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.site-card-facts div {
+  min-width: 0;
+}
+
+.site-card-facts dt {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-bottom: 0.08rem;
+  text-transform: uppercase;
+}
+
+.site-card-facts dd {
+  color: #1f2937;
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.site-status {
+  font-weight: 700;
+}
+
+.site-status.status-on {
+  color: #16803c;
+}
+
+.site-status.status-off {
+  color: #b42318;
+}
+
+.dygraphs {
+  margin-bottom: 0.2rem;
+}
+
+.dygraphs.html-widget {
+  width: 100% !important;
+}
+
+.site-dashboard {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.4rem;
+  margin-bottom: 0.6rem;
+  overflow: hidden;
+}
+
+.site-dashboard-panel {
+  border-bottom: 1px solid #edf0f3;
+  padding: 0.15rem 0.25rem 0;
+  position: relative;
+}
+
+.site-dashboard-panel:last-child {
+  border-bottom: 0;
+}
+
+.site-dashboard-panel .dygraphs {
+  margin-bottom: 0;
+}
+
+.site-dashboard-key {
+  background: #f8fafc;
+  border-bottom: 1px solid #edf0f3;
+  color: #4b5563;
+  font-size: 0.78rem;
+  padding: 0.25rem 0.55rem;
+}
+
+.site-dashboard-pumping .dygraphs {
+  min-height: 170px;
+}
+
+.site-dashboard-water-balance .dygraphs {
+  min-height: 210px;
+}
+
+.site-dashboard-dtw .dygraphs {
+  min-height: 190px;
+}
+
+.site-dashboard .dygraph-legend {
+  max-width: calc(100% - 120px);
+  overflow: visible !important;
+  right: 2.75rem !important;
+  text-align: right;
+  white-space: nowrap;
+  width: 420px !important;
+}
+
+.site-dashboard-note {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(95, 107, 122, 0.18);
+  border-radius: 0.25rem;
+  bottom: 2.95rem;
+  color: #5f6b7a;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  padding: 0.15rem 0.35rem;
+  position: absolute;
+  right: 0.65rem;
+  z-index: 10;
+}
+
+figure {
+  margin-bottom: 0.45rem;
+}
+
+aside {
+  color: #5f6b7a;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  min-width: 240px;
+}
+
+aside p {
+  margin-bottom: 0.45rem;
+}
+
+aside img {
+  border-radius: 0.35rem;
+  max-height: 180px;
+  object-fit: cover;
+  width: 100%;
+}
+
+aside figcaption {
+  color: #6b7280;
+  font-size: 0.82rem;
+  margin-top: 0.25rem;
+}
+
+.quarto-figure {
+  margin-bottom: 0.4rem;
+}
+
+@media (max-width: 991.98px) {
+  body.floating .page-columns {
+    display: block;
+  }
+
+  .page-columns aside {
+    width: auto;
+  }
+
+  aside {
+    min-width: 0;
+  }
+
+  .site-card-with-map {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .site-card-with-map .site-card-media {
+    display: grid;
+  }
+
+  .site-card-with-map .site-card-figure:first-child,
+  .site-card-with-map .site-card-figure:nth-child(2),
+  .site-card-with-map .site-card-body {
+    border-left: 0;
+    border-right: 0;
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .site-card-map-image {
+    min-height: 280px;
+  }
+
+  .site-card-media {
+    grid-template-columns: 1fr;
+  }
+
+  .site-card-facts {
+    grid-template-columns: 1fr;
+  }
+}

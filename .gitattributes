@@ -3,6 +3,8 @@
 
 # GitHub Pages serves raw files and does not resolve LFS; keep docs copies as regular files
 docs/data/point_frame_photos/* !filter !diff !merge
+site_images/* !filter !diff !merge
+docs/site_images/* !filter !diff !merge
 
 # Set the default behavior, in case people don't have core.autocrlf set.
 * text=auto

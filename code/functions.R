@@ -2774,7 +2774,7 @@ plot_linked_wells_single <- function(data, site_id, linked_wells_df) {
     dtw2<-data %>% filter(site == site_id)
     dtw.z<-dtw2 %>% select(date,dtw) %>% zoo(dtw2$dtw, order.by=dtw2$date)
 
-    dygraph(dtw.z, group = 'a') %>% dyRangeSelector(height = 20, strokeColor = "")%>%
+    dygraph(dtw.z, group = 'a') %>%
       dyAxis("y", label = "Depth (m)",valueRange = c(10, 0)) %>%
       dyLegend(show = "always", hideOnMouseOut = FALSE)
 
@@ -2784,13 +2784,230 @@ plot_linked_wells_single <- function(data, site_id, linked_wells_df) {
   plot_on_off <- function(data, site_id) {
     on.off2 <- data %>% filter(site == site_id)
 
-    on.off1z <- on.off2 %>% select(date, on.off.1) %>%
-      zoo::zoo(., order.by = .$date)
+    on.off1z <- zoo::zoo(on.off2$on.off.1, order.by = on.off2$date)
 
-    dygraph(on.off1z, group = 'a', main = 'open bar denotes on-status') %>%
-      dyAxis("y", valueRange = c(1, 8))  %>%
-      dyOptions(stepPlot = TRUE, drawPoints = TRUE, pointSize = 2, fillGraph = TRUE, includeZero = TRUE) %>%
-      dyLegend(show = "follow")
+    dygraph(on.off1z, group = 'a') %>%
+      dyAxis("y", valueRange = c(0, 11)) %>%
+      dyOptions(
+        stepPlot = TRUE,
+        drawPoints = FALSE,
+        fillGraph = TRUE,
+        fillAlpha = 0.35,
+        includeZero = TRUE,
+        drawGrid = FALSE,
+        axisLineWidth = 0,
+        strokeWidth = 1.2,
+        colors = c("#2ca25f")
+      ) %>%
+      dyLegend(show = "never")
+  }
+
+  plot_site_dashboard <- function(pumping_data,
+                                  awc_data,
+                                  dtw_data,
+                                  on_off_data,
+                                  site_id,
+                                  linked_wells_df,
+                                  monitoring_well_label = NULL,
+                                  group_name = paste0("site-dashboard-", site_id)) {
+    site_linked_wells <- linked_wells_df %>%
+      filter(Site == site_id) %>%
+      pull(Linked_Well) %>%
+      as.character()
+
+    pumping_filtered <- pumping_data %>%
+      filter(staid %in% site_linked_wells) %>%
+      mutate(read2 = ifelse(read < 0, 0, read)) %>%
+      group_by(roy, staid) %>%
+      summarise(total_pumping = sum(read), .groups = "drop") %>%
+      select(roy, staid, total_pumping) %>%
+      mutate(roy2 = as.Date(paste0(roy, "-04-01"), format = "%Y-%m-%d"))
+
+    pumping_series <- lapply(split(pumping_filtered, pumping_filtered$staid), tozoo)
+    pumping_zoo <- do.call(merge, pumping_series)
+    if (is.null(dim(zoo::coredata(pumping_zoo))) && length(pumping_series) == 1) {
+      pumping_zoo <- zoo::zoo(
+        matrix(
+          zoo::coredata(pumping_zoo),
+          ncol = 1,
+          dimnames = list(NULL, names(pumping_series))
+        ),
+        order.by = zoo::index(pumping_zoo)
+      )
+    } else if (NCOL(pumping_zoo) == length(pumping_series)) {
+      colnames(pumping_zoo) <- names(pumping_series)
+    }
+    pumping_core <- zoo::coredata(pumping_zoo)
+    pumping_core[is.na(pumping_core)] <- 0
+    zoo::coredata(pumping_zoo) <- pumping_core
+
+    awc_filtered <- awc_data %>%
+      filter(site == site_id) %>%
+      group_by(date) %>%
+      summarise(
+        awc = mean(awc, na.rm = TRUE),
+        vwr = mean(vwr, na.rm = TRUE),
+        .groups = "drop"
+      )
+    water_balance_zoo <- zoo::zoo(
+      cbind(AWC = awc_filtered$awc, VWR = awc_filtered$vwr),
+      order.by = awc_filtered$date
+    )
+    vwr_values <- awc_filtered$vwr[is.finite(awc_filtered$vwr)]
+    vwr_axis_range <- NULL
+    if (length(vwr_values) > 0) {
+      vwr_axis_range <- range(vwr_values, na.rm = TRUE)
+      vwr_axis_buffer <- max(diff(vwr_axis_range) * 0.08, 1)
+      vwr_axis_range <- c(
+        max(0, vwr_axis_range[1] - vwr_axis_buffer),
+        vwr_axis_range[2] + vwr_axis_buffer
+      )
+    }
+
+    dtw_filtered <- dtw_data %>%
+      filter(site == site_id) %>%
+      group_by(date) %>%
+      summarise(dtw = mean(dtw, na.rm = TRUE), .groups = "drop")
+    on_off_filtered <- on_off_data %>%
+      filter(site == site_id) %>%
+      arrange(date) %>%
+      distinct(date, .keep_all = TRUE)
+    dtw_values <- dtw_filtered$dtw[is.finite(dtw_filtered$dtw)]
+    dtw_axis_range <- c(10, 0)
+    if (length(dtw_values) > 0) {
+      dtw_range <- range(dtw_values, na.rm = TRUE)
+      dtw_buffer <- max(diff(dtw_range) * 0.08, 1)
+      dtw_axis_range <- c(dtw_range[2] + dtw_buffer, max(0, dtw_range[1] - dtw_buffer))
+    }
+
+    dashboard_date_window <- as.Date(range(
+      c(
+        zoo::index(pumping_zoo),
+        zoo::index(water_balance_zoo),
+        dtw_filtered$date,
+        on_off_filtered$date
+      ),
+      na.rm = TRUE
+    ))
+    dashboard_display_window <- c(as.Date("1990-09-01"), dashboard_date_window[2])
+
+    status_intervals <- on_off_filtered %>%
+      arrange(date) %>%
+      mutate(end_date = dplyr::coalesce(dplyr::lead(date), dashboard_date_window[2])) %>%
+      filter(end_date > date) %>%
+      mutate(
+        status_color = ifelse(
+          on.off.1 > 1,
+          "rgba(0, 0, 0, 0)",
+          "rgba(44, 162, 95, 0.12)"
+        )
+      )
+
+    blank_x_axis_labels <- htmlwidgets::JS("function(date, granularity, opts, dygraph) { return ''; }")
+
+    set_dashboard_display_window <- function(plot) {
+      plot$x$attrs$dateWindow <- as.character(dashboard_display_window)
+      plot
+    }
+
+    add_status_shading <- function(plot) {
+      for (i in seq_len(nrow(status_intervals))) {
+        plot <- plot %>%
+          dyShading(
+            from = status_intervals$date[i],
+            to = status_intervals$end_date[i],
+            color = status_intervals$status_color[i]
+          )
+      }
+      plot
+    }
+
+    pumping_zoo <- merge(
+      pumping_zoo,
+      `Window spacer` = zoo::zoo(rep(0, length(dashboard_date_window)), dashboard_date_window)
+    )
+    pumping_core <- zoo::coredata(pumping_zoo)
+    pumping_core[is.na(pumping_core)] <- 0
+    zoo::coredata(pumping_zoo) <- pumping_core
+
+    water_balance_zoo <- merge(
+      water_balance_zoo,
+      `Window spacer` = zoo::zoo(rep(NA_real_, length(dashboard_date_window)), dashboard_date_window)
+    )
+    dtw_plot_zoo <- merge(
+      DTW = zoo::zoo(dtw_filtered$dtw, order.by = dtw_filtered$date),
+      `Window spacer` = zoo::zoo(rep(NA_real_, length(dashboard_date_window)), dashboard_date_window)
+    )
+
+    pumping_plot <- dygraph(pumping_zoo, group = group_name, height = "170px") %>%
+      dyStackedBarGroup(site_linked_wells) %>%
+      dySeries("Window spacer", color = "rgba(0, 0, 0, 0)", strokeWidth = 0) %>%
+      dyAxis("x", axisLabelFormatter = blank_x_axis_labels) %>%
+      dyAxis("y", label = "Pumping (AF)") %>%
+      dyOptions(stackedGraph = TRUE) %>%
+      dyLegend(show = "always", hideOnMouseOut = FALSE) %>%
+      dyCrosshair(direction = "vertical")
+    pumping_plot <- add_status_shading(pumping_plot)
+    pumping_plot <- set_dashboard_display_window(pumping_plot)
+
+    water_balance_plot <- dygraph(water_balance_zoo, group = group_name, height = "210px") %>%
+      dyAxis("x", axisLabelFormatter = blank_x_axis_labels) %>%
+      dyAxis("y", label = "AWC / VWR (cm)") %>%
+      dySeries("Window spacer", color = "rgba(0, 0, 0, 0)", strokeWidth = 0) %>%
+      dyLegend(show = "always", hideOnMouseOut = FALSE) %>%
+      dyCrosshair(direction = "vertical")
+    if (!is.null(vwr_axis_range)) {
+      water_balance_plot <- htmlwidgets::onRender(
+        water_balance_plot,
+        sprintf(
+          "function(el, x) {
+             var graph = this.dygraph;
+             var vwrRange = [%s, %s];
+             if (!graph) return;
+
+             graph.ready(function() {
+               graph.updateOptions({ valueRange: vwrRange });
+             });
+
+             el.addEventListener('dblclick', function(event) {
+               event.preventDefault();
+               event.stopPropagation();
+               graph.axes_[0].valueRange = null;
+               graph.updateOptions({ valueRange: null });
+               graph.resetZoom();
+             }, true);
+           }",
+          vwr_axis_range[1],
+          vwr_axis_range[2]
+        )
+      )
+    }
+    water_balance_plot <- add_status_shading(water_balance_plot)
+    water_balance_plot <- set_dashboard_display_window(water_balance_plot)
+
+    dtw_plot <- dygraph(dtw_plot_zoo, group = group_name, height = "190px") %>%
+      dyAxis("y", label = "DTW (m)", valueRange = dtw_axis_range) %>%
+      dySeries("Window spacer", color = "rgba(0, 0, 0, 0)", strokeWidth = 0) %>%
+      dyLegend(show = "always", hideOnMouseOut = FALSE) %>%
+      dyCrosshair(direction = "vertical")
+    dtw_plot <- add_status_shading(dtw_plot)
+    dtw_plot <- set_dashboard_display_window(dtw_plot)
+
+    htmltools::tagList(
+      htmltools::tags$div(
+        class = "site-dashboard",
+        htmltools::tags$div(class = "site-dashboard-key", "Shading: green = on; off periods are unshaded"),
+        htmltools::tags$div(class = "site-dashboard-panel site-dashboard-pumping", pumping_plot),
+        htmltools::tags$div(class = "site-dashboard-panel site-dashboard-water-balance", water_balance_plot),
+        htmltools::tags$div(
+          class = "site-dashboard-panel site-dashboard-dtw",
+          dtw_plot,
+          if (!is.null(monitoring_well_label)) {
+            htmltools::tags$div(class = "site-dashboard-note", monitoring_well_label)
+          }
+        )
+      )
+    )
   }
   # plot_on_off <- function(data,site_id){
   #   on.off2<-data %>% filter(site == site_id)
