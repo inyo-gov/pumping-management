@@ -55,6 +55,14 @@ on.off1 <- report_data$on.off1
 awc.req.turnon <- report_data$awc.req.turnon
 linked_wells <- report_data$linked_wells
 site_metadata <- report_data$site_metadata
+# Historic links for pumping plots only; CSV fallback if workbook sheet absent.
+historic_linked_wells <- report_data$historic_linked_wells
+if (is.null(historic_linked_wells)) {
+  historic_linked_wells <- readr::read_csv(
+    here("data", "historic_linked_wells.csv"),
+    show_col_types = FALSE
+  )
+}
 ```
 
 ```{r}
@@ -241,6 +249,7 @@ plot_site_dashboard(
   on.off1,
   "LW1",
   linked_wells,
+  historic_linked_wells_df = historic_linked_wells,
   monitoring_well_label = "Depth to Water: 795T"
 )
 ```
@@ -267,6 +276,7 @@ plot_site_dashboard(
   on.off1,
   "LW2",
   linked_wells,
+  historic_linked_wells_df = historic_linked_wells,
   monitoring_well_label = "Depth to Water: V001G"
 )
 ```
@@ -293,6 +303,7 @@ plot_site_dashboard(
   on.off1,
   "LW3",
   linked_wells,
+  historic_linked_wells_df = historic_linked_wells,
   monitoring_well_label = "Depth to Water: 840T"
 )
 ```
@@ -388,6 +399,7 @@ plot_site_dashboard(
   on.off1,
   "BP1",
   linked_wells,
+  historic_linked_wells_df = historic_linked_wells,
   monitoring_well_label = "Depth to Water: 798T"
 )
 ```
@@ -414,6 +426,7 @@ plot_site_dashboard(
   on.off1,
   "BP2",
   linked_wells,
+  historic_linked_wells_df = historic_linked_wells,
   monitoring_well_label = "Depth to Water: 799T"
 )
 ```
@@ -440,6 +453,7 @@ plot_site_dashboard(
   on.off1,
   "BP3",
   linked_wells,
+  historic_linked_wells_df = historic_linked_wells,
   monitoring_well_label = "Depth to Water: 567T"
 )
 ```
@@ -466,6 +480,7 @@ plot_site_dashboard(
   on.off1,
   "BP4",
   linked_wells,
+  historic_linked_wells_df = historic_linked_wells,
   monitoring_well_label = "Depth to Water: 800T"
 )
 ```

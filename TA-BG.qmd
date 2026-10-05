@@ -56,6 +56,14 @@ on.off1 <- report_data$on.off1
 awc.req.turnon <- report_data$awc.req.turnon
 linked_wells <- report_data$linked_wells
 site_metadata <- report_data$site_metadata
+# Historic links for pumping plots only; CSV fallback if workbook sheet absent.
+historic_linked_wells <- report_data$historic_linked_wells
+if (is.null(historic_linked_wells)) {
+  historic_linked_wells <- readr::read_csv(
+    here("data", "historic_linked_wells.csv"),
+    show_col_types = FALSE
+  )
+}
 ```
 
 # On/Off Well Management
@@ -183,7 +191,7 @@ site_card("TA3", "Taboose/Aberdeen Monitoring Site #3", "site_images/TA3_0to100m
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TA3", linked_wells, monitoring_well_label = "Depth to Water: 849T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TA3", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 849T")
 ```
 
 ### TABOOSE/ABERDEEN MONITORING SITE #4
@@ -193,7 +201,7 @@ site_card("TA4", "Taboose/Aberdeen Monitoring Site #4", "site_images/TA4_0_2018.
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TA4", linked_wells, monitoring_well_label = "Depth to Water: 586T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TA4", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 586T")
 ```
 
 ### TABOOSE/ABERDEEN MONITORING SITE #5
@@ -203,7 +211,7 @@ site_card("TA5", "Taboose/Aberdeen Monitoring Site #5", "site_images/TA5_0_2018.
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TA5", linked_wells, monitoring_well_label = "Depth to Water: 801T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TA5", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 801T")
 ```
 
 ### TABOOSE/ABERDEEN MONITORING SITE #6
@@ -213,7 +221,7 @@ site_card("TA6", "Taboose/Aberdeen Monitoring Site #6", "site_images/TA6_0_2018.
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TA6", linked_wells, monitoring_well_label = "Depth to Water: 803T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TA6", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 803T")
 ```
 
 ### THIBAUT/SAWMILL MONITORING SITE #1
@@ -223,7 +231,7 @@ site_card("TS1", "Thibaut/Sawmill Monitoring Site #1", "site_images/TS1_0to100m.
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TS1", linked_wells, monitoring_well_label = "Depth to Water: 807T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TS1", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 807T")
 ```
 
 ### THIBAUT/SAWMILL MONITORING SITE #2
@@ -233,7 +241,7 @@ site_card("TS2", "Thibaut/Sawmill Monitoring Site #2", "site_images/TS2_0_2018.J
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TS2", linked_wells, monitoring_well_label = "Depth to Water: 806T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TS2", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 806T")
 ```
 
 ### THIBAUT/SAWMILL MONITORING SITE #3
@@ -243,7 +251,7 @@ site_card("TS3", "Thibaut/Sawmill Monitoring Site #3", "site_images/TS3_0to100m.
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TS3", linked_wells, monitoring_well_label = "Depth to Water: 851T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TS3", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 851T")
 ```
 
 ### THIBAUT/SAWMILL MONITORING SITE #4
@@ -253,7 +261,7 @@ site_card("TS4", "Thibaut/Sawmill Monitoring Site #4", "site_images/TS4_0to100m.
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TS4", linked_wells, monitoring_well_label = "Depth to Water: 804T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "TS4", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 804T")
 ```
 
 ### THIBAUT/SAWMILL CONTROL SITE
@@ -282,7 +290,7 @@ site_card("IO1", "Independence/Oak Monitoring Site #1", "site_images/IO1_0to100m
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "IO1", linked_wells, monitoring_well_label = "Depth to Water: 809T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "IO1", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 809T")
 ```
 
 ### INDEPENDENCE/OAK MONITORING SITE #2
@@ -292,7 +300,7 @@ site_card("IO2", "Independence/Oak Monitoring Site #2", "site_images/IO2_0_2018.
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "IO2", linked_wells, monitoring_well_label = "Depth to Water: 854T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "IO2", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 854T")
 ```
 
 ### INDEPENDENCE/OAK CONTROL SITE #1
@@ -340,7 +348,7 @@ site_card("SS1", "Symmes/Shepherd Monitoring Site #1", "site_images/SS1_0to100m.
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "SS1", linked_wells, monitoring_well_label = "Depth to Water: V009G")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "SS1", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: V009G")
 ```
 
 ### SYMMES/SHEPHERD MONITORING SITE #2
@@ -350,7 +358,7 @@ site_card("SS2", "Symmes/Shepherd Monitoring Site #2", "site_images/SS2_0_2018.J
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "SS2", linked_wells, monitoring_well_label = "Depth to Water: 646T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "SS2", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 646T")
 ```
 
 ### SYMMES/SHEPHERD MONITORING SITE #3
@@ -360,7 +368,7 @@ site_card("SS3", "Symmes/Shepherd Monitoring Site #3", "site_images/SS3_0to100m.
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "SS3", linked_wells, monitoring_well_label = "Depth to Water: 561T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "SS3", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 561T")
 ```
 
 ### SYMMES/SHEPHERD MONITORING SITE #4
@@ -370,7 +378,7 @@ site_card("SS4", "Symmes/Shepherd Monitoring Site #4", "site_images/SS4_0_2018.J
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "SS4", linked_wells, monitoring_well_label = "Depth to Water: 885T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "SS4", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 885T")
 ```
 
 ### BAIRS GEORGES MONITORING SITE #2
@@ -380,7 +388,7 @@ site_card("BG2", "Bairs/Georges Monitoring Site #2", "site_images/BG2_0to100m.JP
 ```
 
 ```{r}
-plot_site_dashboard(tm2, awc1, dtw1, on.off1, "BG2", linked_wells, monitoring_well_label = "Depth to Water: 812T")
+plot_site_dashboard(tm2, awc1, dtw1, on.off1, "BG2", linked_wells, historic_linked_wells_df = historic_linked_wells, monitoring_well_label = "Depth to Water: 812T")
 ```
 
 ### BAIRS/GEORGES CONTROL SITE
