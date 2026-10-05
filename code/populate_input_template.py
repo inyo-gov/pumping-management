@@ -30,7 +30,7 @@ TEMPLATE_PATH = ROOT / "data" / "input_template_2026.xlsx"
 CANONICAL_SHEETS = {
     "awc_vwr": ["site", "date", "awc", "vwr"],
     "dtw": ["site", "date", "dtw"],
-    "on_off_history": ["site", "date", "status", "status_code"],
+    "on_off_history": ["site", "date", "status"],
     "current_status": ["site", "current_status", "awc_req_turnon"],
 }
 
@@ -59,7 +59,6 @@ SOURCE_MAPS = {
             "site": ["site", "Site"],
             "date": ["date", "Date", "date_real"],
             "status": ["on.off"],
-            "status_code": ["on.off.1"],
         },
     },
     "current_status": {

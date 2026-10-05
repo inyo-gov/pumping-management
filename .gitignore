@@ -25,3 +25,18 @@ code/local_map_sources.R
 # Local OS/render artifacts
 .DS_Store
 *_files/
+
+# Local work log (assimilator source)
+WORKLOG.md
+
+# Accidental Quarto renders of local ICM/agent docs (not site pages)
+docs/AGENTS.html
+docs/WORKLOG.html
+
+# Local scratch / one-off scripts (not for Pages)
+catalog.yaml
+code/merge_vwr_patch.py
+# Keep local ICM / agent notes out of the public repo
+AGENTS.md
+docs/2026-10-05_*.md
+docs/2026-10-05_*.csv

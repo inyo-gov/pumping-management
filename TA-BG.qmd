@@ -100,7 +100,8 @@ site_card <- function(
   image_alt,
   monitoring_well_label = NULL,
   map_src = NULL,
-  map_alt = NULL
+  map_alt = NULL,
+  sidebar_note = NULL
 ) {
   status_row <- awc.req.turnon[awc.req.turnon$site == site_id, , drop = FALSE]
   status_row <- status_row[1, , drop = FALSE]
@@ -162,7 +163,13 @@ site_card <- function(
         htmltools::tags$div(
           htmltools::tags$dt("Monitoring well"),
           htmltools::tags$dd(ifelse(is.null(monitoring_well_label), "NA", monitoring_well_label))
-        )
+        ),
+        if (!is.null(sidebar_note) && nzchar(sidebar_note)) {
+          htmltools::tags$div(
+            htmltools::tags$dt("Dual-use"),
+            htmltools::tags$dd(sidebar_note)
+          )
+        }
       )
     )
   )
@@ -271,7 +278,7 @@ plot_dtw_dygraph(dtw1,"TSC")
 ### INDEPENDENCE/OAK MONITORING SITE #1
 
 ```{r}
-site_card("IO1", "Independence/Oak Monitoring Site #1", "site_images/IO1_0to100m.JPG", "Independence/Oak Monitoring Site #1 point-frame photo", monitoring_well_label = "809T", map_src = "site_images/site_maps/IO1_linked_wells_map.png", map_alt = "Static map showing Independence/Oak Monitoring Site #1 and linked wells W061, W391, and W400")
+site_card("IO1", "Independence/Oak Monitoring Site #1", "site_images/IO1_0to100m.JPG", "Independence/Oak Monitoring Site #1 point-frame photo", monitoring_well_label = "809T", map_src = "site_images/site_maps/IO1_linked_wells_map.png", map_alt = "Static map showing Independence/Oak Monitoring Site #1 and linked wells W427, W391, and W400", sidebar_note = "W427 planned: irrigation-season exempt; IO1 on/off otherwise.")
 ```
 
 ```{r}

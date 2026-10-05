@@ -2939,8 +2939,18 @@ plot_linked_wells_single <- function(data, site_id, linked_wells_df) {
       `Window spacer` = zoo::zoo(rep(NA_real_, length(dashboard_date_window)), dashboard_date_window)
     )
 
+    # Only request series that exist after Totals_Means filtering (e.g. W427
+    # may be linked but have only sentinel -777 reads and no plot columns).
+    pumping_plot_wells <- intersect(
+      site_linked_wells,
+      setdiff(colnames(pumping_zoo), "Window spacer")
+    )
+    if (length(pumping_plot_wells) == 0) {
+      stop("No pumping series available for linked wells at site ", site_id, call. = FALSE)
+    }
+
     pumping_plot <- dygraph(pumping_zoo, group = group_name, height = "170px") %>%
-      dyStackedBarGroup(site_linked_wells) %>%
+      dyStackedBarGroup(pumping_plot_wells) %>%
       dySeries("Window spacer", color = "rgba(0, 0, 0, 0)", strokeWidth = 0) %>%
       dyAxis("x", axisLabelFormatter = blank_x_axis_labels) %>%
       dyAxis("y", label = "Pumping (AF)") %>%
