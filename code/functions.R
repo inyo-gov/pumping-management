@@ -2809,11 +2809,21 @@ plot_linked_wells_single <- function(data, site_id, linked_wells_df) {
                                   site_id,
                                   linked_wells_df,
                                   monitoring_well_label = NULL,
-                                  group_name = paste0("site-dashboard-", site_id)) {
+                                  group_name = paste0("site-dashboard-", site_id),
+                                  historic_linked_wells_df = NULL) {
     site_linked_wells <- linked_wells_df %>%
       filter(Site == site_id) %>%
       pull(Linked_Well) %>%
       as.character()
+
+    # Union historic wells for pumping series only (site_card / maps stay current).
+    if (!is.null(historic_linked_wells_df) && nrow(historic_linked_wells_df) > 0) {
+      historic_wells <- historic_linked_wells_df %>%
+        filter(Site == site_id) %>%
+        pull(Linked_Well) %>%
+        as.character()
+      site_linked_wells <- unique(c(site_linked_wells, historic_wells))
+    }
 
     pumping_filtered <- pumping_data %>%
       filter(staid %in% site_linked_wells) %>%

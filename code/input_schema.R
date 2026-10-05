@@ -76,7 +76,8 @@ read_onoff_input_workbook <- function(path, validate = TRUE) {
     validate_onoff_input_workbook(path)
   }
 
-  list(
+  sheets <- readxl::excel_sheets(path)
+  out <- list(
     site_metadata = readxl::read_excel(path, sheet = "site_metadata"),
     linked_wells = readxl::read_excel(path, sheet = "linked_wells"),
     awc_vwr = readxl::read_excel(path, sheet = "awc_vwr"),
@@ -84,6 +85,11 @@ read_onoff_input_workbook <- function(path, validate = TRUE) {
     on_off_history = readxl::read_excel(path, sheet = "on_off_history"),
     current_status = readxl::read_excel(path, sheet = "current_status")
   )
+  # Optional: former links kept on pumping plots after a reassignment.
+  if ("historic_linked_wells" %in% sheets) {
+    out$historic_linked_wells <- readxl::read_excel(path, sheet = "historic_linked_wells")
+  }
+  out
 }
 
 as_report_inputs <- function(input) {
@@ -121,6 +127,13 @@ as_report_inputs <- function(input) {
 
     linked_wells = input$linked_wells %>%
       dplyr::rename(Site = site, Linked_Well = well_id),
+
+    historic_linked_wells = if (!is.null(input$historic_linked_wells)) {
+      input$historic_linked_wells %>%
+        dplyr::rename(Site = site, Linked_Well = well_id)
+    } else {
+      NULL
+    },
 
     site_metadata = input$site_metadata
   )
