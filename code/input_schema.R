@@ -14,7 +14,7 @@ required_onoff_input_schema <- function() {
     linked_wells = c("site", "well_id"),
     awc_vwr = c("site", "date", "awc", "vwr"),
     dtw = c("site", "date", "dtw"),
-    on_off_history = c("site", "date", "status", "status_code"),
+    on_off_history = c("site", "date", "status"),
     current_status = c("site", "current_status", "awc_req_turnon")
   )
 }
@@ -87,6 +87,12 @@ read_onoff_input_workbook <- function(path, validate = TRUE) {
 }
 
 as_report_inputs <- function(input) {
+  status_to_code <- function(status) {
+    normalized <- toupper(trimws(as.character(status)))
+    codes <- c(ON = 1, OFF = 10)
+    unname(codes[normalized])
+  }
+
   list(
     awc1 = input$awc_vwr %>%
       dplyr::mutate(date = as.Date(date)) %>%
@@ -102,8 +108,9 @@ as_report_inputs <- function(input) {
       dplyr::mutate(
         date = as.Date(date),
         on.off = status,
-        on.off.1 = status_code
+        on.off.1 = status_to_code(status)
       ) %>%
+      dplyr::filter(!is.na(on.off.1), !is.na(site), !is.na(date)) %>%
       dplyr::select(site, date, on.off, on.off.1),
 
     awc.req.turnon = input$current_status %>%
