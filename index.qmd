@@ -265,7 +265,7 @@ site_card(
   "Laws Monitoring Site #2 point-frame photo",
   monitoring_well_label = "V001G",
   map_src = "site_images/site_maps/LW2_linked_wells_map.png",
-  map_alt = "Static map showing Laws Monitoring Site #2, linked wells W236, W239, and W244, and monitoring well W243 (formerly linked; replaced by W426, which has no map coordinates)"
+  map_alt = "Static map showing Laws Monitoring Site #2, linked wells W236, W239, W426, and W244, and monitoring well W243 (formerly linked; replaced by W426)"
 )
 ```
 

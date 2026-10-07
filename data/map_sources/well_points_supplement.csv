@@ -1,0 +1,2 @@
+staid,well_type,wellfield_raw,lat,lng,coord_sys,source,source_id,source_date
+W426,production,LAWS,37.422576,-118.334342,WGS84,OVGA monitoring points export (owens.gladata.com/api/export.ashx?v=mp; hydro-data data/hydro/owens_mp_export.json),mon_pt_id 7522,2026-02-04

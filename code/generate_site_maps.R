@@ -91,6 +91,22 @@ dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 site_coords <- readr::read_csv(site_coords_path, show_col_types = FALSE)
 well_points <- readr::read_csv(well_points_path, show_col_types = FALSE)
+
+# In-repo supplement for wells missing from the external well-points source
+# (e.g. W426 from the OVGA monitoring points export). Only fills gaps; never
+# overrides a staid that the main source already has.
+supplement_path <- file.path(project_dir, "data", "map_sources", "well_points_supplement.csv")
+if (file.exists(supplement_path)) {
+  supplement <- readr::read_csv(supplement_path, show_col_types = FALSE) %>%
+    filter(!.data$staid %in% well_points$staid)
+  if (nrow(supplement) > 0) {
+    message("Adding well points from supplement: ", paste(supplement$staid, collapse = ", "))
+    well_points <- bind_rows(
+      well_points,
+      supplement %>% select("staid", "well_type", "wellfield_raw", "lat", "lng")
+    )
+  }
+}
 if (use_workbook_links) {
   linked_wells <- readxl::read_excel(linked_wells_path, sheet = "linked_wells") %>%
     transmute(site = .data$site, linked_well = .data$well_id)
