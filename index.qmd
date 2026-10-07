@@ -17,7 +17,7 @@ format:
 tbl-cap-location: top   
 # number-sections: true    
 affiliation: "Inyo County Water Department"
-date-modified: "2026-06-19"
+date-modified: "2026-10-07"
 citation:
   type: report
   container-title: "Green Book Section III On/Off Pumping Management"
@@ -220,7 +220,8 @@ site_card <- function(
         htmltools::tags$div(
           htmltools::tags$dt("Monitoring well"),
           htmltools::tags$dd(ifelse(is.null(monitoring_well_label), "NA", monitoring_well_label))
-        )
+        ),
+        site_card_well_facts(site_id, linked_wells, historic_linked_wells)
       )
     )
   )
@@ -264,7 +265,7 @@ site_card(
   "Laws Monitoring Site #2 point-frame photo",
   monitoring_well_label = "V001G",
   map_src = "site_images/site_maps/LW2_linked_wells_map.png",
-  map_alt = "Static map showing Laws Monitoring Site #2 and linked wells W236, W239, W243, and W244"
+  map_alt = "Static map showing Laws Monitoring Site #2, linked wells W236, W239, W426, and W244, and monitoring well W243 (formerly linked; replaced by W426)"
 )
 ```
 
@@ -414,7 +415,7 @@ site_card(
   "Big Pine Monitoring Site #2 point-frame photo",
   monitoring_well_label = "799T",
   map_src = "site_images/site_maps/BP2_linked_wells_map.png",
-  map_alt = "Static map showing Big Pine Monitoring Site #2 and linked wells W220, W229, W374, and W375"
+  map_alt = "Static map showing Big Pine Monitoring Site #2, linked wells W220, W374, and W375, and monitoring well V229 (formerly W229)"
 )
 ```
 

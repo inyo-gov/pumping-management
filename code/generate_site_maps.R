@@ -57,12 +57,27 @@ well_points_path <- resolve_input(
   file.path(project_dir, "data", "map_sources", "monitoring_well_points.csv"),
   "monitoring well points"
 )
-linked_wells_path <- resolve_input(
-  "PUMPING_LINKED_WELLS",
-  "linked_wells_path",
-  file.path(project_dir, "data", "map_sources", "monitoring_site_linked_wells.csv"),
-  "monitoring site linked wells"
+# Linked wells: the repo's canonical input workbook (linked_wells sheet) is the
+# source of truth. PUMPING_LINKED_WELLS (env var) still forces an external CSV.
+input_workbook_path <- normalizePath(
+  Sys.getenv(
+    "PUMPING_INPUT_WORKBOOK",
+    unset = file.path(project_dir, "data", "onoff_input_05_2026.xlsx")
+  ),
+  winslash = "/",
+  mustWork = FALSE
 )
+use_workbook_links <- !nzchar(Sys.getenv("PUMPING_LINKED_WELLS")) && file.exists(input_workbook_path)
+linked_wells_path <- if (use_workbook_links) {
+  input_workbook_path
+} else {
+  resolve_input(
+    "PUMPING_LINKED_WELLS",
+    "linked_wells_path",
+    file.path(project_dir, "data", "map_sources", "monitoring_site_linked_wells.csv"),
+    "monitoring site linked wells"
+  )
+}
 parcels_path <- resolve_input(
   "PUMPING_PARCELS_GEOJSON",
   "parcels_path",
@@ -76,7 +91,59 @@ dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 site_coords <- readr::read_csv(site_coords_path, show_col_types = FALSE)
 well_points <- readr::read_csv(well_points_path, show_col_types = FALSE)
-linked_wells <- readr::read_csv(linked_wells_path, show_col_types = FALSE)
+
+# In-repo supplement for wells missing from the external well-points source
+# (e.g. W426 from the OVGA monitoring points export). Only fills gaps; never
+# overrides a staid that the main source already has.
+supplement_path <- file.path(project_dir, "data", "map_sources", "well_points_supplement.csv")
+if (file.exists(supplement_path)) {
+  supplement <- readr::read_csv(supplement_path, show_col_types = FALSE) %>%
+    filter(!.data$staid %in% well_points$staid)
+  if (nrow(supplement) > 0) {
+    message("Adding well points from supplement: ", paste(supplement$staid, collapse = ", "))
+    well_points <- bind_rows(
+      well_points,
+      supplement %>% select("staid", "well_type", "wellfield_raw", "lat", "lng")
+    )
+  }
+}
+if (use_workbook_links) {
+  linked_wells <- readxl::read_excel(linked_wells_path, sheet = "linked_wells") %>%
+    transmute(site = .data$site, linked_well = .data$well_id)
+} else {
+  linked_wells <- readr::read_csv(linked_wells_path, show_col_types = FALSE)
+}
+
+# Former links (historic_linked_wells) are drawn as monitoring wells. Workbook
+# sheet first, then the data/historic_linked_wells.csv fallback.
+read_historic_wells <- function() {
+  if (file.exists(input_workbook_path) &&
+      "historic_linked_wells" %in% readxl::excel_sheets(input_workbook_path)) {
+    out <- readxl::read_excel(input_workbook_path, sheet = "historic_linked_wells") %>%
+      rename(staid = "well_id")
+  } else {
+    csv_path <- file.path(project_dir, "data", "historic_linked_wells.csv")
+    if (!file.exists(csv_path)) return(tibble::tibble(site = character(), staid = character(), display_id = character()))
+    out <- readr::read_csv(csv_path, show_col_types = FALSE) %>%
+      rename(site = "Site", staid = "Linked_Well")
+  }
+  if (!"display_id" %in% names(out)) out$display_id <- NA_character_
+  out %>%
+    mutate(
+      display_id = dplyr::coalesce(dplyr::na_if(as.character(.data$display_id), ""), .data$staid),
+      label = ifelse(
+        .data$display_id != .data$staid,
+        paste0(.data$display_id, " (MW, formerly ", .data$staid, ")"),
+        paste0(.data$staid, " (MW)")
+      )
+    ) %>%
+    select("site", "staid", "label")
+}
+historic_wells <- read_historic_wells()
+
+# Optional comma-separated subset, e.g. PUMPING_MAP_SITES="IO1,BP2,LW2".
+map_sites <- trimws(strsplit(Sys.getenv("PUMPING_MAP_SITES"), ",")[[1]])
+map_sites <- map_sites[nzchar(map_sites)]
 
 parcels_sf <- NULL
 if (file.exists(parcels_path)) {
@@ -142,16 +209,41 @@ make_site_map <- function(site_id) {
     )
   linked <- linked_wells %>%
     filter(.data$site == site_id) %>%
-    transmute(site_tacbg = .data$site, staid = .data$linked_well)
+    transmute(site_tacbg = .data$site, staid = .data$linked_well, label = .data$linked_well, role = "linked")
+  monitoring <- historic_wells %>%
+    filter(.data$site == site_id, !.data$staid %in% linked$staid) %>%
+    transmute(site_tacbg = .data$site, staid = .data$staid, label = .data$label, role = "monitoring")
+  all_wells <- bind_rows(linked, monitoring)
   wells <- well_points %>%
     transmute(
       staid = .data$staid,
       well_lat = .data$lat,
       well_lng = .data$lng
     ) %>%
-    inner_join(linked, by = "staid")
+    inner_join(all_wells, by = "staid")
+
+  # Wells with no coordinates in the map source are listed, never invented.
+  missing_coords <- setdiff(all_wells$staid, wells$staid)
+  if (length(missing_coords) > 0) {
+    message(site_id, ": no map coordinates for ", paste(missing_coords, collapse = ", "), " (not plotted)")
+  }
 
   if (nrow(site) == 0 || nrow(wells) == 0) return(invisible(NULL))
+
+  map_caption_parts <- character()
+  if (any(wells$role == "monitoring")) {
+    map_caption_parts <- c(
+      map_caption_parts,
+      "Blue triangle = monitoring well, formerly linked (historic pumping still plotted)"
+    )
+  }
+  if (length(missing_coords) > 0) {
+    map_caption_parts <- c(
+      map_caption_parts,
+      paste0("Not shown (no coordinates in map source): ", paste(missing_coords, collapse = ", "))
+    )
+  }
+  map_caption <- if (length(map_caption_parts) > 0) paste(map_caption_parts, collapse = "\n") else NULL
 
   map_rows <- wells %>%
     mutate(
@@ -232,9 +324,28 @@ make_site_map <- function(site_id) {
       )
   }
 
+  linked_rows <- map_rows %>% filter(.data$role == "linked")
+  monitoring_rows <- map_rows %>% filter(.data$role == "monitoring")
+  # Skip the distance label for a monitoring well that sits next to a linked
+  # well (e.g. W061 is ~27 m from W427) so the two labels do not stack.
+  monitoring_rows$near_linked <- vapply(seq_len(nrow(monitoring_rows)), function(i) {
+    nrow(linked_rows) > 0 && min(haversine_m(
+      monitoring_rows$well_lat[i], monitoring_rows$well_lng[i],
+      linked_rows$well_lat, linked_rows$well_lng
+    )) < 150
+  }, logical(1))
+
   p <- p +
     geom_segment(
-      data = map_rows,
+      data = monitoring_rows,
+      aes(x = .data$site_lng, y = .data$site_lat, xend = .data$well_lng, yend = .data$well_lat),
+      color = "#1565c0",
+      linewidth = 0.7,
+      linetype = "dotted",
+      alpha = 0.9
+    ) +
+    geom_segment(
+      data = linked_rows,
       aes(x = .data$site_lng, y = .data$site_lat, xend = .data$well_lng, yend = .data$well_lat),
       color = "#b36b2c",
       linewidth = 0.9,
@@ -242,7 +353,7 @@ make_site_map <- function(site_id) {
       alpha = 0.9
     ) +
     geom_label(
-      data = map_rows,
+      data = linked_rows,
       aes(x = .data$mid_lng, y = .data$mid_lat, label = .data$distance),
       size = 5.4,
       linewidth = 0,
@@ -251,8 +362,18 @@ make_site_map <- function(site_id) {
       color = "#7a4a1d",
       alpha = 0.96
     ) +
+    geom_label(
+      data = monitoring_rows[!monitoring_rows$near_linked, , drop = FALSE],
+      aes(x = .data$mid_lng, y = .data$mid_lat, label = .data$distance),
+      size = 4.6,
+      linewidth = 0,
+      label.padding = unit(0.16, "lines"),
+      fill = "#e3f2fd",
+      color = "#0d47a1",
+      alpha = 0.96
+    ) +
     geom_point(
-      data = map_rows,
+      data = linked_rows,
       aes(x = .data$well_lng, y = .data$well_lat),
       size = 6.3,
       shape = 21,
@@ -261,14 +382,34 @@ make_site_map <- function(site_id) {
       color = "#5c3f2b"
     ) +
     geom_label(
-      data = map_rows,
-      aes(x = .data$well_lng, y = .data$well_lat, label = .data$staid),
+      data = linked_rows,
+      aes(x = .data$well_lng, y = .data$well_lat, label = .data$label),
       nudge_y = 0.0014,
       size = 5.5,
       linewidth = 0,
       label.padding = unit(0.14, "lines"),
       fill = "white",
       color = "#263238",
+      fontface = "bold"
+    ) +
+    geom_point(
+      data = monitoring_rows,
+      aes(x = .data$well_lng, y = .data$well_lat),
+      size = 4.8,
+      shape = 24,
+      stroke = 1,
+      fill = "#90caf9",
+      color = "#0d47a1"
+    ) +
+    geom_label(
+      data = monitoring_rows,
+      aes(x = .data$well_lng, y = .data$well_lat, label = .data$label),
+      nudge_y = -0.0014,
+      size = 4.6,
+      linewidth = 0,
+      label.padding = unit(0.14, "lines"),
+      fill = "#e3f2fd",
+      color = "#0d47a1",
       fontface = "bold"
     ) +
     geom_point(
@@ -295,6 +436,7 @@ make_site_map <- function(site_id) {
     labs(
       title = paste0(site_id, " Linked Wells"),
       subtitle = site_parcel_text,
+      caption = map_caption,
       x = NULL,
       y = NULL
     ) +
@@ -310,6 +452,7 @@ make_site_map <- function(site_id) {
       legend.text = element_text(size = 11),
       plot.title = element_text(face = "bold", color = "#1f2937", size = 22),
       plot.subtitle = element_text(color = "#475569", size = 14),
+      plot.caption = element_text(color = "#334155", size = 12, hjust = 0),
       plot.margin = margin(8, 10, 6, 10)
     )
 
@@ -322,6 +465,8 @@ make_site_map <- function(site_id) {
   )
 }
 
-for (site_id in unique(linked_wells$site)) {
+sites_to_map <- unique(linked_wells$site)
+if (length(map_sites) > 0) sites_to_map <- intersect(sites_to_map, map_sites)
+for (site_id in sites_to_map) {
   make_site_map(site_id)
 }

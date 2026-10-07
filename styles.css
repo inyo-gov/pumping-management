@@ -230,6 +230,16 @@ details[open] summary {
   margin: 0;
 }
 
+.site-card-facts .site-card-fact-wide {
+  grid-column: 1 / -1;
+}
+
+.site-card-well-note {
+  display: block;
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
 .site-status {
   font-weight: 700;
 }
