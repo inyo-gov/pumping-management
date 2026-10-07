@@ -6,7 +6,8 @@
 # You can also set these environment variables instead:
 # - PUMPING_SITE_COORDS
 # - PUMPING_WELL_POINTS
-# - PUMPING_LINKED_WELLS
+# - PUMPING_LINKED_WELLS (optional; by default linked wells come from the
+#   linked_wells sheet of data/onoff_input_05_2026.xlsx, or PUMPING_INPUT_WORKBOOK)
 # - PUMPING_PARCELS_GEOJSON
 
 # site_coords_path <- "../aop-eval/aops/tables/shiny_kr_pumping/data/monitoring/monitoring_site_coords.csv"

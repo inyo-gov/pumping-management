@@ -1,2 +1,4 @@
-Site,Linked_Well
-IO1,W061
+Site,Linked_Well,display_id,well_status,note
+IO1,W061,W061,monitoring well,Replaced by W427. Monitoring well since 2019; last pumped 2017.
+BP2,W229,V229,inactive; monitoring well,Last pumped 1993; not pump-equipped; used as a monitoring well (formerly W229).
+LW2,W243,W243,monitoring well,Replaced by W426. Monitoring well since 2019; last pumped 1995.

@@ -2802,6 +2802,75 @@ plot_linked_wells_single <- function(data, site_id, linked_wells_df) {
       dyLegend(show = "never")
   }
 
+  # Display label for a well: "V229 (formerly W229)" when a historic link
+  # carries a display_id that differs from the pumping-record well_id.
+  # Joins to pumping data always stay on well_id / Linked_Well.
+  historic_well_labels <- function(historic_linked_wells_df, site_id) {
+    if (is.null(historic_linked_wells_df) || nrow(historic_linked_wells_df) == 0 ||
+        !"display_id" %in% names(historic_linked_wells_df)) {
+      return(character())
+    }
+    rows <- historic_linked_wells_df[historic_linked_wells_df$Site == site_id, , drop = FALSE]
+    well_id <- as.character(rows$Linked_Well)
+    display_id <- as.character(rows$display_id)
+    renamed <- !is.na(display_id) & nzchar(display_id) & display_id != well_id
+    stats::setNames(paste0(display_id[renamed], " (formerly ", well_id[renamed], ")"), well_id[renamed])
+  }
+
+  # Extra site-card facts driven by the linked_wells `note` column and the
+  # historic_linked_wells table (former links now shown as monitoring wells).
+  site_card_well_facts <- function(site_id, linked_wells_df, historic_linked_wells_df = NULL) {
+    facts <- list()
+
+    if ("note" %in% names(linked_wells_df)) {
+      noted <- linked_wells_df[linked_wells_df$Site == site_id &
+                                 !is.na(linked_wells_df$note) &
+                                 nzchar(linked_wells_df$note), , drop = FALSE]
+      if (nrow(noted) > 0) {
+        items <- lapply(seq_len(nrow(noted)), function(i) {
+          htmltools::tags$span(
+            class = "site-card-well-note",
+            htmltools::tags$strong(as.character(noted$Linked_Well[i]), .noWS = "after"),
+            paste0(": ", noted$note[i])
+          )
+        })
+        facts[[length(facts) + 1]] <- htmltools::tags$div(
+          class = "site-card-fact-wide",
+          htmltools::tags$dt("Linked well notes"),
+          htmltools::tags$dd(items)
+        )
+      }
+    }
+
+    if (!is.null(historic_linked_wells_df) && nrow(historic_linked_wells_df) > 0) {
+      hist <- historic_linked_wells_df[historic_linked_wells_df$Site == site_id, , drop = FALSE]
+      if (nrow(hist) > 0) {
+        labels <- historic_well_labels(historic_linked_wells_df, site_id)
+        items <- lapply(seq_len(nrow(hist)), function(i) {
+          well_id <- as.character(hist$Linked_Well[i])
+          label <- if (well_id %in% names(labels)) labels[[well_id]] else well_id
+          status <- if ("well_status" %in% names(hist)) hist$well_status[i] else NA
+          note <- if ("note" %in% names(hist)) hist$note[i] else NA
+          htmltools::tags$span(
+            class = "site-card-well-note",
+            htmltools::tags$strong(label, .noWS = "after"),
+            paste0(
+              if (!is.na(status) && nzchar(status)) paste0(" (", status, ")") else "",
+              if (!is.na(note) && nzchar(note)) paste0(": ", note) else ""
+            )
+          )
+        })
+        facts[[length(facts) + 1]] <- htmltools::tags$div(
+          class = "site-card-fact-wide",
+          htmltools::tags$dt("Monitoring wells (formerly linked; historic pumping plotted)"),
+          htmltools::tags$dd(items)
+        )
+      }
+    }
+
+    facts
+  }
+
   plot_site_dashboard <- function(pumping_data,
                                   awc_data,
                                   dtw_data,
@@ -2850,6 +2919,15 @@ plot_linked_wells_single <- function(data, site_id, linked_wells_df) {
     pumping_core <- zoo::coredata(pumping_zoo)
     pumping_core[is.na(pumping_core)] <- 0
     zoo::coredata(pumping_zoo) <- pumping_core
+
+    # Relabel renamed wells for display only (e.g. W229 -> "V229 (formerly W229)");
+    # the pumping join above stays on the original well_id.
+    series_labels <- historic_well_labels(historic_linked_wells_df, site_id)
+    if (length(series_labels) > 0) {
+      relabel <- function(x) ifelse(x %in% names(series_labels), series_labels[x], x)
+      colnames(pumping_zoo) <- relabel(colnames(pumping_zoo))
+      site_linked_wells <- unname(relabel(site_linked_wells))
+    }
 
     awc_filtered <- awc_data %>%
       filter(site == site_id) %>%

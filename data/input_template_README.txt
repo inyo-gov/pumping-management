@@ -42,6 +42,26 @@ Required columns:
 - site
 - well_id
 
+Optional columns:
+
+- note (shown on the site card, e.g. "Irrigation-season exempt; replaced W243")
+
+historic_linked_wells (optional sheet; CSV fallback data/historic_linked_wells.csv)
+
+Former site/well links kept on the pumping plots after a reassignment. Each
+row is also drawn on the site card and linked-wells map as a monitoring well.
+
+Required columns:
+
+- site
+- well_id (the ID used in the pumping records, e.g. W229)
+
+Optional columns:
+
+- display_id (current name if renamed, e.g. V229; shown as "V229 (formerly W229)")
+- well_status (e.g. "monitoring well")
+- note
+
 awc_vwr
 
 Available water content and vegetation water requirement data.
