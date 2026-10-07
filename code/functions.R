@@ -2759,12 +2759,27 @@ plot_linked_wells_single <- function(data, site_id, linked_wells_df) {
       pivot_wider(names_from = period, values_from = site.vwr)
   }
 
+  # Hover label for AWC/VWR readings: the reading's month and year (e.g.
+  # "Feb 2020"). Without this, dygraphs guesses the scale from spacing, and
+  # control sites (~6 readings/yr) were labelled by quarter ("Q1 2020").
+  # Month only: older reading dates come from 2-decimal decimal years
+  # (Date_Julian), so the day is not reliable. UTC avoids a local-time
+  # shift that would push readings on the 1st into the previous month.
+  month_year_value_formatter <- htmlwidgets::JS(
+    "function(ms) {
+       var d = new Date(ms);
+       var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+       return m[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+     }"
+  )
+
   plot_awc_dygraph <- function(data,site_id){
     awc2<-data %>% filter(site == site_id)
 
     awc.z <- zoo(cbind(awc=awc2$awc,vwr=awc2$vwr), order.by=awc2$date)
 
     dygraph(awc.z, group = 'a') %>%
+      dyAxis("x", valueFormatter = month_year_value_formatter) %>%
       dyAxis("y", label = "(cm)") %>%
       dyLegend(show = "always", hideOnMouseOut = FALSE)
   }
@@ -3049,7 +3064,7 @@ plot_linked_wells_single <- function(data, site_id, linked_wells_df) {
     pumping_plot <- set_dashboard_display_window(pumping_plot)
 
     water_balance_plot <- dygraph(water_balance_zoo, group = group_name, height = "210px") %>%
-      dyAxis("x", axisLabelFormatter = blank_x_axis_labels) %>%
+      dyAxis("x", axisLabelFormatter = blank_x_axis_labels, valueFormatter = month_year_value_formatter) %>%
       dyAxis("y", label = "AWC / VWR (cm)") %>%
       dySeries("Window spacer", color = "rgba(0, 0, 0, 0)", strokeWidth = 0) %>%
       dyLegend(show = "always", hideOnMouseOut = FALSE) %>%
