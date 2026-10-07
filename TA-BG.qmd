@@ -17,7 +17,7 @@ format:
 tbl-cap-location: top   
 # number-sections: true    
 affiliation: "Inyo County Water Department"
-date-modified: "2026-06-19"
+date-modified: "2026-10-07"
 citation:
   type: report
   container-title: "Green Book Section III On/Off Pumping Management"
